@@ -1,0 +1,24 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "widget app backend using express to serve sql db",
+  "main": "server.js",
+  "scripts": {
+    "test": "npm test",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MattMurn/Widget.git"
+  },
+  "author": "Matthew Murnighan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MattMurn/Widget/issues"
+  },
+  "homepage": "https://github.com/MattMurn/Widget#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3"
+  }
+}
