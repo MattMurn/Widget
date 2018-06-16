@@ -6,7 +6,8 @@
     "axios": "^0.18.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
-    "react-scripts": "1.1.4"
+    "react-scripts": "1.1.4",
+    "react-test-renderer": "^16.4.1"
   },
   "proxy": "http://localhost:3001/",
   "scripts": {
