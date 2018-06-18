@@ -19,7 +19,7 @@ io.on('connection', socketConnection => {
     
     gdaxData.on('message', data => {
         io.sockets.emit('getDataFeed', data);
-        // console.log(data.changes)
+        console.log(data.changes)
         // console.log(data.changes)
         // console.log(` Bids: ${data.bids}`)
         // console.log(`Asks: ${data.asks}`)
