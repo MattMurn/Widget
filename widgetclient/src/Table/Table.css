@@ -1,0 +1,12 @@
+
+.container {
+    background: darkcyan;
+    text-align: center;
+}
+
+.price {
+    position: relative;
+    display: inline-block;
+    float: left;
+    
+}
