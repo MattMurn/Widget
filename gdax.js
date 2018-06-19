@@ -1,21 +1,19 @@
 const Gdax = require("gdax");
-let key = ["LTC-USD"]
-const gdaxData = new Gdax.WebsocketClient( key, 'wss://ws-feed.gdax.com', null, {
+let key = "LTC-USD";
+const publicClient = new Gdax.PublicClient();
+const webSocketConnect = new Gdax.WebsocketClient( key, 'wss://ws-feed.gdax.com', null, {
     
         "type": "subscribe",
         "channels": [
-            "level2"
             
-            // {
-            //     "name": "ticker",
-            //     "product_ids": [
-            //         "ETH-BTC",
-            //         "ETH-USD"
-            //     ]
-            // } 
+            "level2",
+            "ticker"
         ]
     
 });
 
-
-module.exports = gdaxData;
+module.exports = {
+    webSocketConnect,
+    publicClient,
+    key
+};

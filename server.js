@@ -13,26 +13,25 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'widgetclient/build')));
 
 io.on('connection', socketConnection => {
-  
-    console.log("made connections");
-    console.log(socketConnection.id);
     
-    gdaxData.on('message', data => {
+    gdaxData.webSocketConnect.on('message', data => {
         io.sockets.emit('getDataFeed', data);
-        console.log(data.changes)
-        // console.log(data.changes)
-        // console.log(` Bids: ${data.bids}`)
-        // console.log(`Asks: ${data.asks}`)
-        
-        // if(data.type === 'l2update' && data.changes[0][0] === 'sell' && data.changes[0][2] > 100){
-        //     console.log(`${data.changes[0][0]} : ${data.changes[0][1]} : ${data.changes[0][2]}`)
-        // //    console.log("udpate")
-        // } else {
-        //     // gdaxData.on('close', () => {console.log("web socket connection is closed.")})
-        // }
-        
-    })
+    });
+})
+//get initial orderbook, send to client
+let orderbook;
+gdaxData.publicClient.getProductOrderBook(gdaxData.key, { level: 2 }).then(book => {
+    orderbook = {
+        sequence: book.sequence,
+        asks: [ book.asks[0], book.asks[1] ],
+        bids: [ book.bids[0], book.bids[1] ]
+    };
+    // console.log(orderbook)
+});
 
+app.get('/orderbook', (req, res) => {
+    res.json([orderbook,gdaxData.key]);
+    
 })
 
 app.get('*', (req, res) => {
