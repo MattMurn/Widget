@@ -3,7 +3,7 @@ import { getDataFeed } from '../websocketApi';
 import './Table.css';
 import axios from 'axios';
 const io = require('socket.io-client');
-const socket = io.connect('http://localhost:3000');
+const socket = io.connect();
 class Table extends Component {
     constructor(props) {
         super(props)
@@ -22,8 +22,8 @@ class Table extends Component {
     }
     componentDidMount = () => {
         // console.log("component did mount")
-        this.getOrderBook();
-        // socket.on('getDataFeed', this.handleWsFeed);
+        setInterval(this.getOrderBook, 501);
+        socket.on('getDataFeed', this.handleWsFeed);
     }
     getOrderBook = () => {
         axios.get('/orderbook').then( orderBook => {
@@ -49,22 +49,20 @@ class Table extends Component {
         
     }
     handleWsFeed = (data) => {
-        
-        while(data.changes !== undefined){
-            let update =  data.changes[0];
-            let test = parseInt(update[1]);
-            let final = test.toFixed(2);
-            // console.log("undefined");
-            this.getOrderBook();
-            if(final === this.state.askPriceOne){
-                console.log(` update price ${final}, state price ${this.state.askPriceOne}`)
-                
-                this.setState({askSizeOne: update[2]});
-
-            }
+        console.log(data)
+        // while(data.changes !== undefined){
+        //     let update =  data.changes[0];
+        //     let test = parseInt(update[1]);
+        //     let final = test.toFixed(2);
+        //     // console.log("undefined");
+        //     this.getOrderBook();
+        //     if(final === this.state.askPriceOne){
+        //         console.log(` update price ${final}, state price ${this.state.askPriceOne}`)
+        //         this.setState({askSizeOne: update[2]});
+        //     }
             
             
-        }
+        // }
     }
    
     render = () => {
