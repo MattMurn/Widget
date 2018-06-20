@@ -12,8 +12,9 @@ const webSocketConnect = new Gdax.WebsocketClient( key, 'wss://ws-feed.gdax.com'
     
 });
 
+
 module.exports = {
     webSocketConnect,
     publicClient,
-    key
+    key,
 };

@@ -16,27 +16,35 @@ io.on('connection', socketConnection => {
     gdaxData.webSocketConnect.on('message', data => {
         io.sockets.emit('getDataFeed', data);
     });
+});
+
+let productObj;
+gdaxData.publicClient.getProducts().then(data => {
+    productObj = data.map(i => {return i.id});
+    console.log(productObj)
+    return productObj;
 })
 //get initial orderbook, send to client
-let orderbook;
-loadOrderBook = () => {
+let orderBook;
+const loadOrderBook = () => {
     gdaxData.publicClient.getProductOrderBook(gdaxData.key, { level: 2 }).then(book => {
-        orderbook = {
+        orderBook = {
             sequence: book.sequence,
             asks: [ book.asks[0], book.asks[1] ],
             bids: [ book.bids[0], book.bids[1] ]
         };
-        // console.log(orderbook)
-        return orderbook;
-        
+        return orderBook;
     })
 }
 // update orderbook every 500 mil
-setInterval(loadOrderBook, 500);
-app.get('/orderbook', (req, res) => {
-    res.json([orderbook,gdaxData.key]);
-})
 
+ setInterval(loadOrderBook, 500);
+app.get('/orderbook', (req, res) => {
+    res.json([orderBook,gdaxData.key]);
+})
+app.get('/products', (req, res) => {
+    res.json(productObj);
+})
 app.get('*', (req, res) => {
     res.sendfile(path.join(__dirname + './widgetclient/build/index.html'));
 });

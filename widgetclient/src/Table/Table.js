@@ -1,14 +1,17 @@
 import React, { Component } from 'react';
 import { getDataFeed } from '../websocketApi';
 import './Table.css';
+import '../Dropdown';
 import axios from 'axios';
+
+import Dropdown from '../Dropdown/Dropdown';
 const io = require('socket.io-client');
 const socket = io.connect();
 class Table extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            productHeader: "--",
+            productHeader: [],
             askPriceOne: "--",
             askPriceTwo: "--",
             askSizeOne: "--",
@@ -20,10 +23,22 @@ class Table extends Component {
             updates: []
         }
     }
-    componentDidMount = () => {
+    componentWillMount = () => {
+        
         // console.log("component did mount")
+        this.getProducts();
         setInterval(this.getOrderBook, 501);
-        socket.on('getDataFeed', this.handleWsFeed);
+        // socket.on('getDataFeed', this.handleWsFeed);
+    }
+    componentDidMount = async () => {
+         await this.getProducts();
+        console.log(` this is `)
+    }
+    getProducts = () => {
+        axios.get('/products').then(products => {
+            // console.log(products)
+            this.setState({productHeader: products});
+        })
     }
     getOrderBook = () => {
         axios.get('/orderbook').then( orderBook => {
@@ -42,14 +57,9 @@ class Table extends Component {
             })
          })
     }
-    getPercentChange = () => {
-
-    }
-    topOfBookChange = (data) => {
-        
-    }
+ 
     handleWsFeed = (data) => {
-        console.log(data)
+        // console.log(data)
         // while(data.changes !== undefined){
         //     let update =  data.changes[0];
         //     let test = parseInt(update[1]);
@@ -66,13 +76,16 @@ class Table extends Component {
     }
    
     render = () => {
+
         const { productHeader, askPriceOne, askPriceTwo, 
                 askSizeOne,askSizeTwo, bidPriceOne, 
                 bidPriceTwo, bidSizeOne, bidSizeTwo
             } = this.state;
         return(
             <div className="container"> 
-                <div className="productHeader">{productHeader}</div>
+                {/* {this.state.productHeaderproductHeader.forEach((product) => (
+                    <button>product</button>
+                ))} */}
                 <div className="price"> Price </div>
                 <div className="size"> Size </div>
                 <div className="ask">
