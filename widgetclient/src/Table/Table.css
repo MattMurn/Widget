@@ -1,12 +1,29 @@
-
-.container {
-    background: darkcyan;
+.table {
+    position: relative;
+    float: left;
+    width: 555px;
+    height: 572px;
+}
+.productStyle {
     text-align: center;
 }
-
-.price {
+.sideHeader {
+    text-align: left;
+}
+.btnBar {
     position: relative;
     display: inline-block;
     float: left;
-    
+    width: 100%;
+}
+.productBtn {
+    position: relative;
+    display: inline-block;
+    float: left;
+    height: 25px;
+    font-size: 12px;
+
+}
+#midPoint {
+    width: 50%;
 }

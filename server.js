@@ -30,6 +30,7 @@ gdaxData.publicClient.getProducts().then(data => {
     productObj = data.map(i => {return i.id});
     return productObj;
 })
+
 //get orderbook, send to client
 const loadOrderBook = () => {
     gdaxData.publicClient.getProductOrderBook(key, { level: 2 }).then(book => {
@@ -42,9 +43,10 @@ const loadOrderBook = () => {
     })
 }
 // update orderbook every 500 mil
-setInterval(loadOrderBook, 500);
+setInterval(loadOrderBook, 350);
 
 app.get('/orderbook', (req, res) => {
+   
     res.json([orderBook,gdaxData.key, productObj]);
 })
 app.get('/products', (req, res) => {
