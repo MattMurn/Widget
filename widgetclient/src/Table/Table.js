@@ -24,13 +24,15 @@ class Table extends Component {
         }
     }
     componentWillMount = () => {
-        
+
         // console.log("component did mount")
         // this.getProducts();
         setInterval(this.getOrderBook, 501);
-        // socket.on('getDataFeed', this.handleWsFeed);
+        socket.on('getDataFeed', this.handleWsFeed);
     }
-
+    componentDidMount = () => {
+        // axios.get('/products').then( product => this.setState({productHeader: product}))
+    }
     btnClick = (event) => {
         let productSelect = {
             productCode: event.target.value
@@ -85,7 +87,7 @@ class Table extends Component {
         return(
             <div className="container"> 
                 {productHeader.map((product, i) => (
-                    <button className="productBtn" value={product} onClick={this.btnClick} >{product}</button>
+                    <button className="productBtn" value={product} onClick={this.btnClick} key={i} >{product}</button>
                 ))}
                 <div className="price"> Price </div>
                 <div className="size"> Size </div>

@@ -1,3 +1,4 @@
+const EventEmitter = require('events');
 const express = require('express');
 const path = require('path');
 const PORT = process.env.PORT || 3001;
@@ -7,11 +8,17 @@ const socket = require('socket.io');
 const io = socket(server);
 const bodyParser = require('body-parser');
 const gdaxData = require('./gdax');
-let key = gdaxData.key;
+const emitter = new EventEmitter();
+let key = gdaxData.key || "BTC-USD";
+//variables to hold async objects to send client
+let productObj;
+let orderBook;
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'widgetclient/build')));
+
+emitter.setMaxListeners(12);
 
 io.on('connection', socketConnection => {
     gdaxData.webSocketConnect.on('message', data => {
@@ -19,14 +26,11 @@ io.on('connection', socketConnection => {
     });
 });
 
-let productObj;
 gdaxData.publicClient.getProducts().then(data => {
     productObj = data.map(i => {return i.id});
-    // console.log(productObj)
     return productObj;
 })
-//get initial orderbook, send to client
-let orderBook;
+//get orderbook, send to client
 const loadOrderBook = () => {
     gdaxData.publicClient.getProductOrderBook(key, { level: 2 }).then(book => {
         orderBook = {
@@ -38,8 +42,8 @@ const loadOrderBook = () => {
     })
 }
 // update orderbook every 500 mil
+setInterval(loadOrderBook, 500);
 
- setInterval(loadOrderBook, 500);
 app.get('/orderbook', (req, res) => {
     res.json([orderBook,gdaxData.key, productObj]);
 })
@@ -48,11 +52,10 @@ app.get('/products', (req, res) => {
 });
 // got the button info back to server. now set key to get updated key.
 app.post('/productSelect', (req, res) => {
-    console.log(req.body.productCode);
     key = req.body.productCode;
 })
 app.get('*', (req, res) => {
     res.sendfile(path.join(__dirname + './widgetclient/build/index.html'));
 });
-
-
+//send key to gdax.js to update websocket config
+module.exports = key;
