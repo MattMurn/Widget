@@ -26,26 +26,25 @@ class Table extends Component {
     componentWillMount = () => {
         
         // console.log("component did mount")
-        this.getProducts();
+        // this.getProducts();
         setInterval(this.getOrderBook, 501);
         // socket.on('getDataFeed', this.handleWsFeed);
     }
-    componentDidMount = async () => {
-         await this.getProducts();
-        console.log(` this is `)
-    }
-    getProducts = () => {
-        axios.get('/products').then(products => {
-            // console.log(products)
-            this.setState({productHeader: products});
-        })
+
+    btnClick = (event) => {
+        let productSelect = {
+            productCode: event.target.value
+        };
+        
+        axios.post('/productSelect', productSelect);
+
     }
     getOrderBook = () => {
         axios.get('/orderbook').then( orderBook => {
-            console.log(orderBook)
+            // console.log(orderBook)
             let order = orderBook.data[0];
             this.setState({
-                productHeader: orderBook.data[1],
+                productHeader: orderBook.data[2],
                 askPriceOne: order.asks[0][0],
                 askSizeOne: order.asks[0][1],
                 bidPriceOne: order.bids[0][0],
@@ -57,7 +56,9 @@ class Table extends Component {
             })
          })
     }
- 
+    medianPrice = () => {
+        return (this.state.askPriceOne + this.state.bidPriceOne)/2;
+    }
     handleWsFeed = (data) => {
         // console.log(data)
         // while(data.changes !== undefined){
@@ -83,9 +84,9 @@ class Table extends Component {
             } = this.state;
         return(
             <div className="container"> 
-                {/* {this.state.productHeaderproductHeader.forEach((product) => (
-                    <button>product</button>
-                ))} */}
+                {productHeader.map((product, i) => (
+                    <button className="productBtn" value={product} onClick={this.btnClick} >{product}</button>
+                ))}
                 <div className="price"> Price </div>
                 <div className="size"> Size </div>
                 <div className="ask">
@@ -94,7 +95,7 @@ class Table extends Component {
                     <div className="price"> {askPriceOne} </div>
                     <div className="size">{askSizeOne}</div>
                 </div>
-                <div className="midpoint">{50/ 2}</div>
+                <div className="midpoint">{(askPriceOne*.5) + (bidPriceOne*.5)}</div>
                 <div className="bid">
                     <div className="price"> {bidPriceOne} </div>
                     <div className="size"> {bidSizeOne} </div>

@@ -7,6 +7,7 @@ const socket = require('socket.io');
 const io = socket(server);
 const bodyParser = require('body-parser');
 const gdaxData = require('./gdax');
+let key = gdaxData.key;
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -21,13 +22,13 @@ io.on('connection', socketConnection => {
 let productObj;
 gdaxData.publicClient.getProducts().then(data => {
     productObj = data.map(i => {return i.id});
-    console.log(productObj)
+    // console.log(productObj)
     return productObj;
 })
 //get initial orderbook, send to client
 let orderBook;
 const loadOrderBook = () => {
-    gdaxData.publicClient.getProductOrderBook(gdaxData.key, { level: 2 }).then(book => {
+    gdaxData.publicClient.getProductOrderBook(key, { level: 2 }).then(book => {
         orderBook = {
             sequence: book.sequence,
             asks: [ book.asks[0], book.asks[1] ],
@@ -40,10 +41,15 @@ const loadOrderBook = () => {
 
  setInterval(loadOrderBook, 500);
 app.get('/orderbook', (req, res) => {
-    res.json([orderBook,gdaxData.key]);
+    res.json([orderBook,gdaxData.key, productObj]);
 })
 app.get('/products', (req, res) => {
     res.json(productObj);
+});
+// got the button info back to server. now set key to get updated key.
+app.post('/productSelect', (req, res) => {
+    console.log(req.body.productCode);
+    key = req.body.productCode;
 })
 app.get('*', (req, res) => {
     res.sendfile(path.join(__dirname + './widgetclient/build/index.html'));
