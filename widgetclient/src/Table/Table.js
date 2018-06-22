@@ -23,8 +23,8 @@ class Table extends Component {
     }
     
     componentDidMount = () => {
-        setInterval(this.getOrderBook, 351);
-        // socket.on('getDataFeed', this.handleWsFeed);
+        // setInterval(this.getOrderBook, 501);
+        socket.on('getDataFeed', this.handleWsFeed);
     }
 
     btnClick = event => {
@@ -35,45 +35,57 @@ class Table extends Component {
         axios.post('/productSelect', productSelect);
     }
 
-    getOrderBook = () => {
-        axios.get('/orderbook').then(orderBook => {
-            let order = orderBook.data[0];
-            this.setState({
-                productHeader: orderBook.data[2],
-                askPriceOne: order.asks[0][0],
-                askSizeOne: order.asks[0][1],
-                bidPriceOne: order.bids[0][0],
-                bidSizeOne: order.bids[0][1],
-                askPriceTwo: order.asks[1][0],
-                askSizeTwo: order.asks[1][1],
-                bidPriceTwo: order.bids[1][0],
-                bidSizeTwo: order.bids[1][1],
-            })
-         })
-    }
+    // getOrderBook = () => {
+    //     axios.get('/orderbook').then(orderBook => {
+    //         let order = orderBook.data[0];
+    //         this.setState({
+    //             productHeader: orderBook.data[2],
+    //             askPriceOne: order.asks[0][0],
+    //             askSizeOne: order.asks[0][1],
+    //             bidPriceOne: order.bids[0][0],
+    //             bidSizeOne: order.bids[0][1],
+    //             askPriceTwo: order.asks[1][0],
+    //             askSizeTwo: order.asks[1][1],
+    //             bidPriceTwo: order.bids[1][0],
+    //             bidSizeTwo: order.bids[1][1],
+    //         })
+    //      })
+    // }
 
-    handleWsFeed = (data) => {
+    handleWsFeed = (order) => {
+        console.log(order.askTwoSize)
+        this.setState({
+            askOnePrice: order.askOnePrice,
+            askOneSize: order.askOneSize,
+            askTwoPrice: order.askTwoPrice,
+            askTwoSize: order.askTwoSize,
+            bidOnePrice: order.bidOnePrice,
+            bidOneSize: order.bidOneSize,
+            bidTwoPrice: order.bidTwoPrice,
+            bidTwoSize: order.bidTwoSize,
+        })
      //use l2update channel to update changes to intial orderbook.
     }
    
     render = () => {
 
-        const { productHeader, askPriceOne, askPriceTwo, 
-                askSizeOne,askSizeTwo, bidPriceOne, 
-                bidPriceTwo, bidSizeOne, bidSizeTwo, currentProduct
+        const { productHeader, askOnePrice, askTwoPrice, 
+                askOneSize,askTwoSize, bidOnePrice, 
+                bidTwoPrice, bidOneSize, bidTwoSize, currentProduct
             } = this.state;
             
         return(
             <div className="container"> 
                 <table className="table table-dark">
-                    <div className="btnBar"> 
-                        {productHeader.map((product, i) => (
-                            <button type= "button" className="productBtn btn btn-dark" value={product} onClick={this.btnClick} key={i} >{product}</button>
-                        ))}
-                    </div>
+                    
                     <thead>
+                        <tr className="btnBar"> 
+                            {productHeader.map((product, i) => (
+                                <button type= "button" className="productBtn btn btn-dark" value={product} onClick={this.btnClick} key={i} >{product}</button>
+                            ))}
+                        </tr>
                         <tr>
-                            <h1 className="productStyle">{currentProduct} </h1>
+                            <th className="productStyle">{currentProduct} </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -85,31 +97,30 @@ class Table extends Component {
                             <th scope="col">Size</th>
                         </tr>
                         <tr>
-                            <td>{askPriceTwo}</td>
-                            <td>{askSizeTwo}</td>
+                            <td>{askTwoPrice}</td>
+                            <td>{askTwoSize}</td>
                         </tr>
                         <tr>
-                            <td>{askPriceOne}</td>
-                            <td>{askSizeOne}</td>
+                            <td>{askOnePrice}</td>
+                            <td>{askOneSize}</td>
                         </tr>
                         <tr>
                             <th scope="col" className="sideHeader">Bid</th>
-                            <th scope="col" id="midPoint">MidPoint  - {(bidPriceOne*.5)+(askPriceOne*.5)}</th>
+                            <th scope="col" id="midPoint">MidPoint  - {(bidOnePrice*.5)+(askOnePrice*.5)}</th>
                         </tr>
                         <tr>
                             <th scope="col">Price</th>
                             <th scope="col">Size</th>
                         </tr>
                         <tr>
-                            <td>{bidPriceOne}</td>
-                            <td>{bidSizeOne}</td>
+                            <td>{bidOnePrice}</td>
+                            <td>{bidOneSize}</td>
                         </tr>
                         <tr>
-                            <td>{bidPriceTwo}</td>
-                            <td>{bidSizeTwo}</td>
+                            <td>{bidTwoPrice}</td>
+                            <td>{bidTwoSize}</td>
                         </tr>
                     </tbody>
-                    <br/>
                 </table>            
             </div>
         )
