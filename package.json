@@ -4,7 +4,7 @@
   "description": "widget app backend using express to serve sql db",
   "main": "server.js",
   "scripts": {
-    "test": "npm test",
+    "test": "jest",
     "start": "node server.js",
     "heroku-postbuild": "cd widgetclient && npm install && npm run build"
   },

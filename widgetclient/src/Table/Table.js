@@ -8,7 +8,7 @@ class Table extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            productHeader: [],
+            // productHeader: [],
             askPriceOne: "--",
             askPriceTwo: "--",
             askSizeOne: "--",
@@ -18,13 +18,13 @@ class Table extends Component {
             bidSizeOne: "--",
             bidSizeTwo: "--",
             currentProduct: "BTC-USD",
-            updates: []
         }
     }
-    
+
     componentDidMount = () => {
         // setInterval(this.getOrderBook, 501);
         socket.on('getDataFeed', this.handleWsFeed);
+        // this.getProducts();
     }
 
     btnClick = event => {
@@ -35,25 +35,13 @@ class Table extends Component {
         axios.post('/productSelect', productSelect);
     }
 
-    // getOrderBook = () => {
-    //     axios.get('/orderbook').then(orderBook => {
-    //         let order = orderBook.data[0];
-    //         this.setState({
-    //             productHeader: orderBook.data[2],
-    //             askPriceOne: order.asks[0][0],
-    //             askSizeOne: order.asks[0][1],
-    //             bidPriceOne: order.bids[0][0],
-    //             bidSizeOne: order.bids[0][1],
-    //             askPriceTwo: order.asks[1][0],
-    //             askSizeTwo: order.asks[1][1],
-    //             bidPriceTwo: order.bids[1][0],
-    //             bidSizeTwo: order.bids[1][1],
-    //         })
-    //      })
-    // }
+    getProducts = () => {
+        axios.get('/products').then(product => {
+            this.setState({productHeader: product.data});
+        })
+    }
 
     handleWsFeed = (order) => {
-        console.log(order.askTwoSize)
         this.setState({
             askOnePrice: order.askOnePrice,
             askOneSize: order.askOneSize,
@@ -64,12 +52,11 @@ class Table extends Component {
             bidTwoPrice: order.bidTwoPrice,
             bidTwoSize: order.bidTwoSize,
         })
-     //use l2update channel to update changes to intial orderbook.
     }
    
     render = () => {
-
-        const { productHeader, askOnePrice, askTwoPrice, 
+        //add productHeader back in once multiple product sockets going.
+        const { askOnePrice, askTwoPrice, 
                 askOneSize,askTwoSize, bidOnePrice, 
                 bidTwoPrice, bidOneSize, bidTwoSize, currentProduct
             } = this.state;
@@ -79,11 +66,11 @@ class Table extends Component {
                 <table className="table table-dark">
                     
                     <thead>
-                        <tr className="btnBar"> 
+                        {/* <tr className="btnBar"> 
                             {productHeader.map((product, i) => (
                                 <button type= "button" className="productBtn btn btn-dark" value={product} onClick={this.btnClick} key={i} >{product}</button>
                             ))}
-                        </tr>
+                        </tr> */}
                         <tr>
                             <th className="productStyle">{currentProduct} </th>
                         </tr>
