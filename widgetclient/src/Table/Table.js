@@ -27,13 +27,13 @@ class Table extends Component {
         // this.getProducts();
     }
 
-    btnClick = event => {
-        let productSelect = {
-            productCode: event.target.value
-        };
-        this.setState({currentProduct: productSelect.productCode})
-        axios.post('/productSelect', productSelect);
-    }
+    // btnClick = event => {
+    //     let productSelect = {
+    //         productCode: event.target.value
+    //     };
+    //     this.setState({currentProduct: productSelect.productCode})
+    //     axios.post('/productSelect', productSelect);
+    // }
 
     getProducts = () => {
         axios.get('/products').then(product => {
