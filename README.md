@@ -1,6 +1,6 @@
 # GDAX Widget
   <img src="./img/crypto2.png" alt="Bundle Analyzer example"
-       width="200" height="200" align="right">
+       width="400" height="200" align="right">
 
 This is crypto widget that uses GDAX apis to get the current market price and size for Bitcoin on Coinbase.
 <a href="https://cryptowidget.herokuapp.com/">Deployed Link</a>
