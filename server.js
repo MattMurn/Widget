@@ -45,10 +45,6 @@ app.get('/products', (req, res) => {
     res.json(productObj);
 });
 
-app.post('/product', (req, res) => {
-    
-})
-
 app.get('*', (req, res) => {
     res.sendfile(path.join(__dirname + './widgetclient/build/index.html'));
 });
