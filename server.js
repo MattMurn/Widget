@@ -14,7 +14,7 @@ let key = gdaxData.key || "BTC-USD";
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'widgetclient/build')));
-
+// issue everytime someone connects. 
 gdaxData.webSocketConnect.on('message', feedData => {
     switch(feedData.type){
         case 'snapshot':
@@ -53,5 +53,4 @@ module.exports = {
     key,
     getSecondLevel,
     convertedPrice
-
 };

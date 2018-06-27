@@ -8,13 +8,19 @@ convertedPrice = (price) => {
 };
 
 getSecondLevel = (bestPrice, side) => {
-    
+    // new array copy of order book with just prices to find index 
+    // think about taking this out and putting in a function for reusability or  
+    // directly in websocket message... 
     let orderBookPriceOnly = side.filter(prices => {return prices.splice(1,1)}).join(',').split(',');
+    console.log(`current best price ------ ${bestPrice}`)
     let secondLevelPrice = orderBookPriceOnly[orderBookPriceOnly.indexOf(bestPrice) + 1];
+    console.log(secondLevelPrice)
     // if bad qoute, get the next closest array element from order book.
     if(secondLevelPrice >= (bestPrice *1.10) || bestPrice >= secondLevelPrice* 1.10){
         secondLevelPrice = orderBookPriceOnly[orderBookPriceOnly.indexOf(bestPrice) + 2]
+        console.log(`if stale qoute = ${secondLevelPrice}`)
     }
+        // console.log(convertedPrice(secondLevelPrice))
     return convertedPrice(secondLevelPrice);
 }
 initOrder = (orderBook) => {
@@ -49,12 +55,40 @@ l2UpdateCheck = (changesArray, currentData) => {
         case ((changesArray[0][0] === 'sell') && (compare === currentData.askTwoPrice)):
             currentData.askTwoSize = updatedSize;
             break;
+        default:
+            // updateOrderBook();
     }
 }
-
+updateOrderBook = (orderBook, compare) => {
+        //take in orderbook, is buy or sell, then update the array element with new size. 
+        let final = orderBook;
+        let bids = orderBook.bids.map(prices => prices.splice(1,1)).join(',').split(',');
+     
+        let priceIndex = compare[1].toString();
+        switch(compare[0]){
+            
+            case 'sell':
+                let asks = orderBook.asks.map(prices => prices.splice(1,1)).join(',').split(',');
+                console.log(orderBook.asks[asks.indexOf(priceIndex)]);
+                console.log(asks.indexOf(priceIndex))
+                
+                // console.log(asks[asks.indexOf(compare[1].toString())]);
+                // get index of prices only, 
+                break;
+            case 'buy':
+                console.log(bids);
+                break;
+            default: 
+                // return;
+        }
+        console.log(final)
+        // return true;
+    
+}
 module.exports = {
     convertedPrice,
     getSecondLevel, 
     initOrder, 
-    l2UpdateCheck
+    l2UpdateCheck,
+    updateOrderBook
 }
