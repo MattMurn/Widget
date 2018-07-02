@@ -6,43 +6,55 @@ const socket = io.connect();
 
 class Table extends Component {
     constructor(props) {
-        super(props)
+        super(props);
         this.state = {
             productHeader: [],
-            askPriceOne: "--",
-            askPriceTwo: "--",
-            askSizeOne: "--",
-            askSizeTwo: "--",
-            bidPriceOne: "--",
-            bidPriceTwo: "--",
-            bidSizeOne: "--",
-            bidSizeTwo: "--",
-            currentProduct: "BTC-USD",
-        }
+            askPriceOne: '--',
+            askPriceTwo: '--',
+            askSizeOne: '--',
+            askSizeTwo: '--',
+            bidPriceOne: '--',
+            bidPriceTwo: '--',
+            bidSizeOne: '--',
+            bidSizeTwo: '--',
+            currentProduct: 'BTC-USD',
+            openPrice: '',
+            netChange: '',
+            midPoint: ''
+        };
     }
 
     componentDidMount = () => {
-        // setInterval(this.getOrderBook, 501);
-        
         this.getProducts();
+        this.openPrice();
     }
 
     btnClick = event => {
+        socket.disconnect();
         let productSelect = {
             productCode: event.target.value
         };
-        this.setState({currentProduct: productSelect.productCode})
+        this.setProduct(productSelect);
+        this.setState({currentProduct: productSelect.productCode});
+        socket.connect();
+    }
+
+    getProducts = () => {
+        axios.get('/products').then(product => {
+            this.setState({productHeader: product.data});
+        });
+    }
+
+    setProduct = productSelect => {
         axios.post('/productSelect', productSelect)
         .then(
             socket.on('getDataFeed', this.handleWsFeed)
         );
     }
 
-    getProducts = () => {
-        console.log("get products")
-        axios.get('/products').then(product => {
-            console.log(product.data)
-            this.setState({productHeader: product.data});
+    openPrice = () => {
+        axios.get('/openPrice').then(opening => {
+            this.setState({openPrice: opening.data})
         })
     }
 
@@ -56,6 +68,8 @@ class Table extends Component {
             bidOneSize: order.bidOneSize,
             bidTwoPrice: order.bidTwoPrice,
             bidTwoSize: order.bidTwoSize,
+            netChange: order.netChange,
+            midPoint: order.midPoint
         })
     }
    
@@ -63,7 +77,8 @@ class Table extends Component {
         //add productHeader back in once multiple product sockets going.
         const { productHeader, askOnePrice, askTwoPrice, 
                 askOneSize,askTwoSize, bidOnePrice, 
-                bidTwoPrice, bidOneSize, bidTwoSize, currentProduct
+                bidTwoPrice, bidOneSize, bidTwoSize, currentProduct,
+                netChange, midPoint
             } = this.state;
             
         return(
@@ -97,8 +112,12 @@ class Table extends Component {
                             <td>{askOneSize}</td>
                         </tr>
                         <tr>
+                        <th scope="col" id="midPoint">Net Change - {netChange}%</th>
+                        <th scope="col" id="midPoint">MidPoint  - {midPoint}</th>
+                        </tr>
+                        <tr>
                             <th scope="col" className="sideHeader">Bid</th>
-                            <th scope="col" id="midPoint">MidPoint  - {(bidOnePrice*.5)+(askOnePrice*.5)}</th>
+                            
                         </tr>
                         <tr>
                             <th scope="col">Price</th>

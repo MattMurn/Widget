@@ -1,10 +1,9 @@
-
-convertedPrice = (price) => {
+convertedPrice = price => {
     //prices come in different lengths from feed. 
     let decimal = price.indexOf('.') + 3 ;
-    return price.toString().includes('.') === false ? 
+    return (price.toString().includes('.') === false ? 
         price + '.00' : 
-        price.split('').splice(0, decimal).join('');  
+        price.split('').splice(0, decimal).join(''));  
 };
 
 getSecondLevel = (bestPrice, side) => {
@@ -23,8 +22,8 @@ getSecondLevel = (bestPrice, side) => {
         // console.log(convertedPrice(secondLevelPrice))
     return convertedPrice(secondLevelPrice);
 }
-initOrder = (orderBook) => {
-   
+
+initOrder = orderBook => {
     let currentData = {
         bidOnePrice: convertedPrice(orderBook.bids[0][0]),
         bidOneSize: convertedPrice(orderBook.bids[0][1]),
@@ -60,7 +59,7 @@ l2UpdateCheck = (changesArray, currentData, orderBook) => {
             // updateOrderBook(orderBook, compare, updatedSize);
     }
 }
-updateOrderBook = (orderBook, compare, updatedSize) => {
+updateOrderBook = (orderBook, compare, updatedSize, side) => {
         //take in orderbook, is buy or sell, then update the array element with new size. 
         // let final = orderBook;
         // let bids = orderBook.bids.map(prices => prices.splice(1,1)).join(',').split(',');
