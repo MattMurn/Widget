@@ -1,4 +1,3 @@
-const EventEmitter = require('events');
 const express = require('express');
 const path = require('path');
 const PORT = process.env.PORT || 3001;
@@ -25,7 +24,7 @@ gdaxData.webSocketConnect.on('message', feedData => {
             currentData = wsLogic.initOrder(orderBook);
         break;
         case 'l2update':
-            wsLogic.l2UpdateCheck(feedData.changes, currentData)
+            wsLogic.l2UpdateCheck(feedData.changes, currentData, orderBook)
         break;
         case 'ticker':
             currentData.bidOnePrice = wsLogic.convertedPrice(feedData.best_bid);
@@ -35,13 +34,14 @@ gdaxData.webSocketConnect.on('message', feedData => {
     }
     io.sockets.emit('getDataFeed', currentData)
 });
-
+//get products api to get list of products to send to client
 gdaxData.publicClient.getProducts().then(data => {
     productObj = data.map(i => {return i.id});
     return productObj;
 })
 
 app.get('/products', (req, res) => {
+    console.log(productObj)
     res.json(productObj);
 });
 

@@ -12,13 +12,13 @@ getSecondLevel = (bestPrice, side) => {
     // think about taking this out and putting in a function for reusability or  
     // directly in websocket message... 
     let orderBookPriceOnly = side.filter(prices => {return prices.splice(1,1)}).join(',').split(',');
-    console.log(`current best price ------ ${bestPrice}`)
+    // console.log(`current best price ------ ${bestPrice}`)
     let secondLevelPrice = orderBookPriceOnly[orderBookPriceOnly.indexOf(bestPrice) + 1];
-    console.log(secondLevelPrice)
+    // console.log(secondLevelPrice)
     // if bad qoute, get the next closest array element from order book.
     if(secondLevelPrice >= (bestPrice *1.10) || bestPrice >= secondLevelPrice* 1.10){
         secondLevelPrice = orderBookPriceOnly[orderBookPriceOnly.indexOf(bestPrice) + 2]
-        console.log(`if stale qoute = ${secondLevelPrice}`)
+        // console.log(`if stale qoute = ${secondLevelPrice}`)
     }
         // console.log(convertedPrice(secondLevelPrice))
     return convertedPrice(secondLevelPrice);
@@ -38,8 +38,9 @@ initOrder = (orderBook) => {
     return currentData;
 }
 
-l2UpdateCheck = (changesArray, currentData) => {
+l2UpdateCheck = (changesArray, currentData, orderBook) => {
     //get update price to the same format as orderbook snapshot.
+    let side = changesArray[0][0];
     let compare = convertedPrice(changesArray[0][1]);
     let updatedSize = changesArray[0][2];
     switch(true){
@@ -56,33 +57,45 @@ l2UpdateCheck = (changesArray, currentData) => {
             currentData.askTwoSize = updatedSize;
             break;
         default:
-            // updateOrderBook();
+            // updateOrderBook(orderBook, compare, updatedSize);
     }
 }
-updateOrderBook = (orderBook, compare) => {
+updateOrderBook = (orderBook, compare, updatedSize) => {
         //take in orderbook, is buy or sell, then update the array element with new size. 
-        let final = orderBook;
-        let bids = orderBook.bids.map(prices => prices.splice(1,1)).join(',').split(',');
-     
-        let priceIndex = compare[1].toString();
-        switch(compare[0]){
-            
-            case 'sell':
-                let asks = orderBook.asks.map(prices => prices.splice(1,1)).join(',').split(',');
-                console.log(orderBook.asks[asks.indexOf(priceIndex)]);
-                console.log(asks.indexOf(priceIndex))
-                
-                // console.log(asks[asks.indexOf(compare[1].toString())]);
-                // get index of prices only, 
-                break;
-            case 'buy':
-                console.log(bids);
-                break;
-            default: 
-                // return;
+        // let final = orderBook;
+        // let bids = orderBook.bids.map(prices => prices.splice(1,1)).join(',').split(',');
+        for(let i = 0; i < orderBook.bids.length; i++){
+            let check =orderBook.asks[i][0];
+            if(check == compare[1]){
+                console.log(true, orderBook.asks[i][0]);
+                return true;
+            }
         }
-        console.log(final)
+        
+
+        // console.log(compare[0])
+        // let priceIndex = compare[1].toString();
+        // switch(compare[0]){
+            
+        //     case 'sell':
+        //         let asks = orderBook.asks.map(prices => prices.splice(1,1)).join(',').split(',');
+        //         console.log(orderBook.asks[asks.indexOf(priceIndex)]);
+        //         console.log(asks.indexOf(priceIndex))
+                
+        //         // console.log(asks[asks.indexOf(compare[1].toString())]);
+        //         // get index of prices only, 
+        //         break;
+        //     case 'buy':
+        //         console.log(bids);
+        //         break;
+        //     default: 
+        //         // return;
+        // }
+        // console.log(final)
         // return true;
+
+        //take in orderbook
+
     
 }
 module.exports = {

@@ -8,7 +8,7 @@ class Table extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            // productHeader: [],
+            productHeader: [],
             askPriceOne: "--",
             askPriceTwo: "--",
             askSizeOne: "--",
@@ -23,8 +23,8 @@ class Table extends Component {
 
     componentDidMount = () => {
         // setInterval(this.getOrderBook, 501);
-        socket.on('getDataFeed', this.handleWsFeed);
-        // this.getProducts();
+        
+        this.getProducts();
     }
 
     btnClick = event => {
@@ -32,11 +32,16 @@ class Table extends Component {
             productCode: event.target.value
         };
         this.setState({currentProduct: productSelect.productCode})
-        axios.post('/productSelect', productSelect);
+        axios.post('/productSelect', productSelect)
+        .then(
+            socket.on('getDataFeed', this.handleWsFeed)
+        );
     }
 
     getProducts = () => {
+        console.log("get products")
         axios.get('/products').then(product => {
+            console.log(product.data)
             this.setState({productHeader: product.data});
         })
     }
@@ -56,7 +61,7 @@ class Table extends Component {
    
     render = () => {
         //add productHeader back in once multiple product sockets going.
-        const { askOnePrice, askTwoPrice, 
+        const { productHeader, askOnePrice, askTwoPrice, 
                 askOneSize,askTwoSize, bidOnePrice, 
                 bidTwoPrice, bidOneSize, bidTwoSize, currentProduct
             } = this.state;
@@ -66,11 +71,11 @@ class Table extends Component {
                 <table className="table table-dark">
                     
                     <thead>
-                        {/* <tr className="btnBar"> 
+                        <tr className="btnBar"> 
                             {productHeader.map((product, i) => (
                                 <button type= "button" className="productBtn btn btn-dark" value={product} onClick={this.btnClick} key={i} >{product}</button>
                             ))}
-                        </tr> */}
+                        </tr>
                         <tr>
                             <th className="productStyle">{currentProduct} </th>
                         </tr>
