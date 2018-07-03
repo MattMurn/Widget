@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import './Table.css';
 import axios from 'axios';
-const io = require('socket.io-client');
+import { DropdownButton, MenuItem, ButtonToolbar } from 'react-bootstrap';
+import io from 'socket.io-client';
 const socket = io.connect();
 
 class Table extends Component {
@@ -17,26 +18,22 @@ class Table extends Component {
             bidPriceTwo: '--',
             bidSizeOne: '--',
             bidSizeTwo: '--',
-            currentProduct: 'BTC-USD',
-            openPrice: '',
+            currentProduct: '---',
             netChange: '',
             midPoint: ''
         };
     }
 
-    componentDidMount = () => {
+    componentWillMount = () => {
         this.getProducts();
-        this.openPrice();
     }
 
-    btnClick = event => {
-        socket.disconnect();
+    dropdownSelect = event => {
         let productSelect = {
-            productCode: event.target.value
+            productCode: this.state.productHeader[event]
         };
         this.setProduct(productSelect);
         this.setState({currentProduct: productSelect.productCode});
-        socket.connect();
     }
 
     getProducts = () => {
@@ -50,12 +47,6 @@ class Table extends Component {
         .then(
             socket.on('getDataFeed', this.handleWsFeed)
         );
-    }
-
-    openPrice = () => {
-        axios.get('/openPrice').then(opening => {
-            this.setState({openPrice: opening.data})
-        })
     }
 
     handleWsFeed = (order) => {
@@ -72,25 +63,36 @@ class Table extends Component {
             midPoint: order.midPoint
         })
     }
-   
+ 
     render = () => {
         //add productHeader back in once multiple product sockets going.
         const { productHeader, askOnePrice, askTwoPrice, 
                 askOneSize,askTwoSize, bidOnePrice, 
                 bidTwoPrice, bidOneSize, bidTwoSize, currentProduct,
                 netChange, midPoint
-            } = this.state;
-            
+            } = this.state; 
         return(
             <div className="container"> 
-                <table className="table table-dark">
-                    
+            <ButtonToolbar>
+  <DropdownButton
+    bsStyle="default"
+    title="Select Product"
+    noCaret
+    id="dropdown-no-caret"
+  >
+  {productHeader.map((product, i) => (
+      <MenuItem eventKey= {i} onSelect={event => this.dropdownSelect(event)} value={product} key={i}> {product}</MenuItem>
+  ))}
+    
+  </DropdownButton>
+</ButtonToolbar>
+                <table className="table table-dark">    
                     <thead>
-                        <tr className="btnBar"> 
+                        {/* <tr className="btnBar"> 
                             {productHeader.map((product, i) => (
-                                <button type= "button" className="productBtn btn btn-dark" value={product} onClick={this.btnClick} key={i} >{product}</button>
+                                <button type= "button" className="productBtn btn btn-dark" value={product} onClick={this.dropdownSelect} key={i} >{product}</button>
                             ))}
-                        </tr>
+                        </tr> */}
                         <tr>
                             <th className="productStyle">{currentProduct} </th>
                         </tr>

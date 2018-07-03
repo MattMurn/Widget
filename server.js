@@ -8,15 +8,13 @@ const io = socket(server);
 const bodyParser = require('body-parser');
 const gdaxData = require('./gdax');
 const wsLogic = require('./webSocketLogic');
-let key = gdaxData.key || "BTC-USD";
+let key = "BTC-USD";
 let productArray = [];
-let openPrice;
+let connectionCount = 0;
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'widgetclient/build')));
-
-app.post('/productSelect', (req, res) => key = req.body.productCode);
 
 gdaxData.webSocketConnect.on('message', feedData => {
     switch(feedData.type){
@@ -39,20 +37,34 @@ gdaxData.webSocketConnect.on('message', feedData => {
             currentData.midPoint = (parseFloat(currentData.bidOnePrice) + parseFloat(currentData.askOnePrice))/2;
             currentData.netChange = (((feedData.price - feedData.open_24h)/ feedData.open_24h)*100).toFixed(2);
     }
-    console.log(currentData.midPoint)
-    io.sockets.emit('getDataFeed', currentData)
+    // console.log(currentData.midPoint)
+    io.sockets.emit('getDataFeed', currentData);
+    // socket.broadcast.emit('broadcast', currentData)
+    
 });
+io.on('connection', socket => {
+    connectionCount ++;
+    console.log(` a user has connected ${connectionCount}`)
+    socket.on('disconnect', () => {
+        connectionCount --;
+        console.log(`socket disconnected, total: ${connectionCount}`);
+    });
+    // socket.broadcast.emit('broadcast', currentData)
+   
+})
 //get products api to get list of products to send to client
 gdaxData.publicClient.getProducts().then(data => {
     productArray = data.map(i => i.id);
     return productArray;
 });
-gdaxData.publicClient.getProduct24HrStats('BTC-USD')
-.then(data => openPrice = wsLogic.convertedPrice(data.open));
 
 app.get('/products', (req, res) => res.json(productArray));
 
-app.get('/openPrice', (req, res)=> res.json(openPrice))
+app.post('/productSelect', (req, res) => {
+    gdaxData.webSocketConnect.unsubscribe({ product_ids: [key], channels: ['level2', 'ticker'] });
+    key = req.body.productCode;
+    gdaxData.webSocketConnect.subscribe({ product_ids: [key], channels: ['ticker', 'level2'] });
+});
 
 app.get('*', (req, res) => {
     res.sendfile(path.join(__dirname + './widgetclient/build/index.html'));
