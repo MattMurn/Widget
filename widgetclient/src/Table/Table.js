@@ -26,6 +26,11 @@ class Table extends Component {
 
     componentWillMount = () => {
         this.getProducts();
+        let i = 0;
+        setInterval(() => {
+            i++;
+            console.log(i)
+        },1000)
     }
 
     dropdownSelect = event => {
@@ -49,7 +54,7 @@ class Table extends Component {
         );
     }
 
-    handleWsFeed = (order) => {
+    handleWsFeed = order => {
         this.setState({
             askOnePrice: order.askOnePrice,
             askOneSize: order.askOneSize,
@@ -73,63 +78,63 @@ class Table extends Component {
             } = this.state; 
         return(
             <div className="container"> 
-            <ButtonToolbar>
-  <DropdownButton
-    bsStyle="default"
-    title="Select Product"
-    noCaret
-    id="dropdown-no-caret"
-  >
-  {productHeader.map((product, i) => (
-      <MenuItem eventKey= {i} onSelect={event => this.dropdownSelect(event)} value={product} key={i}> {product}</MenuItem>
-  ))}
-    
-  </DropdownButton>
-</ButtonToolbar>
+            <div className="buttonContainer">
+                <ButtonToolbar>
+                    <DropdownButton
+                        bsStyle="default"
+                        title="Select Product"
+                        noCaret
+                        id="dropdown-no-caret"
+                    >
+                        {productHeader.map((product, i) => (
+                            <MenuItem 
+                                eventKey= {i} 
+                                onSelect={event => this.dropdownSelect(event)} 
+                                value={product} 
+                                key={i}> {product}
+                            </MenuItem>
+                        ))}
+                    </DropdownButton>
+                </ButtonToolbar>
+            </div>
                 <table className="table table-dark">    
                     <thead>
-                        {/* <tr className="btnBar"> 
-                            {productHeader.map((product, i) => (
-                                <button type= "button" className="productBtn btn btn-dark" value={product} onClick={this.dropdownSelect} key={i} >{product}</button>
-                            ))}
-                        </tr> */}
-                        <tr>
-                            <th className="productStyle">{currentProduct} </th>
+                        <tr className="currentProduct">
+                            {currentProduct}
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
+                        {/* <tr>
                             <th scope="col" className="sideHeader">Ask</th>
-                        </tr>
-                        <tr>
+                        </tr> */}
+                        <tr className="askTable">
                             <th scope="col">Price</th>
                             <th scope="col">Size</th>
                         </tr>
-                        <tr>
+                        <tr className="askTable">
                             <td>{askTwoPrice}</td>
                             <td>{askTwoSize}</td>
                         </tr>
-                        <tr>
+                        <tr className="askTable">
                             <td>{askOnePrice}</td>
                             <td>{askOneSize}</td>
                         </tr>
-                        <tr>
-                        <th scope="col" id="midPoint">Net Change - {netChange}%</th>
-                        <th scope="col" id="midPoint">MidPoint  - {midPoint}</th>
+                        <tr className="stats">
+                        <th  id="netChange">Net Change: {netChange}%</th>
+                        <th  id="midPoint">MidPoint: {midPoint}</th>
                         </tr>
-                        <tr>
+                        {/* <tr>
                             <th scope="col" className="sideHeader">Bid</th>
-                            
-                        </tr>
-                        <tr>
+                        </tr> */}
+                        <tr className="bidTable">
                             <th scope="col">Price</th>
                             <th scope="col">Size</th>
                         </tr>
-                        <tr>
+                        <tr className="bidTable">
                             <td>{bidOnePrice}</td>
                             <td>{bidOneSize}</td>
                         </tr>
-                        <tr>
+                        <tr className="bidTable">
                             <td>{bidTwoPrice}</td>
                             <td>{bidTwoSize}</td>
                         </tr>

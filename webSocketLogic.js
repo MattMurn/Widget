@@ -56,14 +56,14 @@ l2UpdateCheck = (changesArray, currentData, orderBook) => {
             currentData.askTwoSize = updatedSize;
             break;
         default:
-            // updateOrderBook(orderBook, compare, updatedSize);
+            updateOrderBook(orderBook, compare, updatedSize);
     }
 }
-updateOrderBook = (orderBook, compare, updatedSize, side) => {
+updateOrderBook = (orderBook, compare, updatedSize) => {
         //take in orderbook, is buy or sell, then update the array element with new size. 
         // let final = orderBook;
         // let bids = orderBook.bids.map(prices => prices.splice(1,1)).join(',').split(',');
-        for(let i = 0; i < orderBook.bids.length; i++){
+        for(let i = 0; i < orderBook.asks.length; i++){
             let check =orderBook.asks[i][0];
             if(check == compare[1]){
                 console.log(true, orderBook.asks[i][0]);
