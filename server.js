@@ -1,3 +1,4 @@
+const EventEmitter = require('events');
 const express = require('express');
 const path = require('path');
 const PORT = process.env.PORT || 3001;
@@ -8,9 +9,7 @@ const io = socket(server);
 const bodyParser = require('body-parser');
 const gdaxData = require('./gdax');
 const wsLogic = require('./webSocketLogic');
-let key = "BTC-USD";
-let productArray = [];
-let connectionCount = 0;
+let key;
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -26,46 +25,32 @@ gdaxData.webSocketConnect.on('message', feedData => {
             currentData = wsLogic.initOrder(orderBook);
         break;
         case 'l2update':
-            wsLogic.l2UpdateCheck(feedData.changes, currentData, orderBook)
+            wsLogic.l2UpdateCheck(feedData.changes, currentData)
         break;
         case 'ticker':
-        // console.log(feedData)
             currentData.bidOnePrice = wsLogic.convertedPrice(feedData.best_bid);
             currentData.bidTwoPrice = wsLogic.getSecondLevel(currentData.bidOnePrice, orderBook.bids);
             currentData.askOnePrice = wsLogic.convertedPrice(feedData.best_ask);
             currentData.askTwoPrice = wsLogic.getSecondLevel(currentData.askOnePrice, orderBook.asks);
-            currentData.midPoint = (parseFloat(currentData.bidOnePrice) + parseFloat(currentData.askOnePrice))/2;
-            currentData.netChange = (((feedData.price - feedData.open_24h)/ feedData.open_24h)*100).toFixed(2);
     }
-    // console.log(currentData.midPoint)
-    io.sockets.emit('getDataFeed', currentData);
-    // socket.broadcast.emit('broadcast', currentData)
+    io.sockets.emit('getDataFeed', currentData)
     
 });
-io.on('connection', socket => {
-    connectionCount ++;
-    console.log(` a user has connected ${connectionCount}`)
-    socket.on('disconnect', () => {
-        connectionCount --;
-        console.log(`socket disconnected, total: ${connectionCount}`);
-    });
-    // socket.broadcast.emit('broadcast', currentData)
-   
-})
-//get products api to get list of products to send to client
+
 gdaxData.publicClient.getProducts().then(data => {
-    productArray = data.map(i => i.id);
-    return productArray;
+    productObj = data.map(i => {return i.id});
+    return productObj;
+})
+
+app.get('/products', (req, res) => {
+    res.json(productObj);
 });
-
-app.get('/products', (req, res) => res.json(productArray));
-
 app.post('/productSelect', (req, res) => {
-    gdaxData.webSocketConnect.unsubscribe({ product_ids: [key], channels: ['level2', 'ticker'] });
+    // console.log(req.body.productCode);
     key = req.body.productCode;
-    gdaxData.webSocketConnect.subscribe({ product_ids: [key], channels: ['ticker', 'level2'] });
-});
-
+    
+})
+console.log(key)
 app.get('*', (req, res) => {
     res.sendfile(path.join(__dirname + './widgetclient/build/index.html'));
 });
@@ -73,6 +58,6 @@ app.get('*', (req, res) => {
 module.exports = {
     key,
     getSecondLevel,
-    convertedPrice,
-    app
+    convertedPrice
+
 };

@@ -41,35 +41,46 @@ l2UpdateCheck = (changesArray, currentData, orderBook) => {
     //get update price to the same format as orderbook snapshot.
     let side = changesArray[0][0];
     let compare = convertedPrice(changesArray[0][1]);
-    let updatedSize = changesArray[0][2];
+    let updatedQty = changesArray[0][2];
     switch(true){
         case ((changesArray[0][0] === 'buy') && (compare === currentData.bidOnePrice)):
-            currentData.bidOneSize = updatedSize;
+            currentData.bidOneSize = updatedQty;
             break;
         case ((changesArray[0][0] === 'buy') && (compare === currentData.bidTwoPrice)):
-            currentData.bidTwoSize = updatedSize;
+            currentData.bidTwoSize = updatedQty;
             break;
         case ((changesArray[0][0] === 'sell') && (compare === currentData.askOnePrice)):
-            currentData.askOneSize = updatedSize;
+            currentData.askOneSize = updatedQty;
             break;
         case ((changesArray[0][0] === 'sell') && (compare === currentData.askTwoPrice)):
-            currentData.askTwoSize = updatedSize;
+            currentData.askTwoSize = updatedQty;
             break;
         default:
-            updateOrderBook(orderBook, compare, updatedSize);
+            updateOrderBook(orderBook, compare, updatedQty, side);
     }
 }
-updateOrderBook = (orderBook, compare, updatedSize) => {
+updateOrderBook = (orderBook, compare, updatedQty, side) => {
         //take in orderbook, is buy or sell, then update the array element with new size. 
         // let final = orderBook;
+        updatedQty = compare[2];
         // let bids = orderBook.bids.map(prices => prices.splice(1,1)).join(',').split(',');
-        for(let i = 0; i < orderBook.asks.length; i++){
-            let check =orderBook.asks[i][0];
-            if(check == compare[1]){
-                console.log(true, orderBook.asks[i][0]);
-                return true;
+        switch(side){
+            case 'sell':
+            for(let i = 0; i < orderBook.asks.length; i++){
+                let check =orderBook.asks[i][0];
+                if(check == compare[1]){
+                    console.log(true, orderBook.asks[i][0]);
+                    orderBook.asks[i][1] = updatedQty;
+                    return orderBook.asks[i][1];
+                }
+                else {
+                    console.log(false)
+                    return false
+                }
             }
+
         }
+        
         
 
         // console.log(compare[0])
