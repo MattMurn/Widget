@@ -9,7 +9,8 @@ const io = socket(server);
 const bodyParser = require('body-parser');
 const gdaxData = require('./gdax');
 const wsLogic = require('./webSocketLogic');
-let key = gdaxData.key || "BTC-USD";
+let key = "BTC-USD";
+
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -25,17 +26,26 @@ gdaxData.webSocketConnect.on('message', feedData => {
             currentData = wsLogic.initOrder(orderBook);
         break;
         case 'l2update':
-            wsLogic.l2UpdateCheck(feedData.changes, currentData)
+            wsLogic.l2UpdateCheck(feedData.changes, currentData, orderBook)
         break;
         case 'ticker':
+        console.log("Ticker")
             currentData.bidOnePrice = wsLogic.convertedPrice(feedData.best_bid);
             currentData.bidTwoPrice = wsLogic.getSecondLevel(currentData.bidOnePrice, orderBook.bids);
             currentData.askOnePrice = wsLogic.convertedPrice(feedData.best_ask);
             currentData.askTwoPrice = wsLogic.getSecondLevel(currentData.askOnePrice, orderBook.asks);
-    }
+            currentData.midPoint = (parseFloat(currentData.bidOnePrice) + parseFloat(currentData.askOnePrice))/2;
+           currentData.netChange = (((feedData.price - feedData.open_24h)/ feedData.open_24h)*100).toFixed(2);
+        }
     io.sockets.emit('getDataFeed', currentData)
+    
 });
-
+app.post('/productSelect', (req, res) => {
+        gdaxData.webSocketConnect.unsubscribe({ product_ids: [key], channels: ['level2', 'ticker'] });
+        console.log(req.body.productCode);
+        key = req.body.productCode;
+        gdaxData.webSocketConnect.subscribe({ product_ids: [key], channels: ['ticker', 'level2'] });
+});
 gdaxData.publicClient.getProducts().then(data => {
     productObj = data.map(i => {return i.id});
     return productObj;
@@ -44,7 +54,12 @@ gdaxData.publicClient.getProducts().then(data => {
 app.get('/products', (req, res) => {
     res.json(productObj);
 });
-
+app.post('/productSelect', (req, res) => {
+    // console.log(req.body.productCode);
+    key = req.body.productCode;
+    
+})
+console.log(key)
 app.get('*', (req, res) => {
     res.sendfile(path.join(__dirname + './widgetclient/build/index.html'));
 });

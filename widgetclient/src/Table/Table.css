@@ -1,28 +1,48 @@
 .table {
-    position: relative;
+    position: fixed;
     float: left;
-    width: 555px;
-    height: 572px;
+    width: 400px;
+    height: 400px;
+    border: none;
 }
-.productStyle {
-    text-align: center;
+.container {
+    position: fixed;
+    left: 0px;
+    background-color: #212529;
+    color: beige;
+    width: 475px;
+    height: 450px;
 }
-.sideHeader {
+.buttonContainer {
+    float: right;
+}
+#dropdown-no-caret {
+    float: right;
+    background-color: beige;
+    border: none;
+}
+.currentProduct {
+    text-align: right;
+    font-size: 45px;
+    height: 100px;
+}
+.askTable {
+    color: red;
     text-align: left;
+    height: 20px;
 }
-.btnBar {
-    position: relative;
-    display: inline-block;
-    float: left;
-    width: 100%;
+.dropdown-menu {
+    min-width: 116px;
+    background-color: beige;
+    text-decoration: #212529
 }
-.productBtn {
-    position: relative;
-    display: inline-block;
-    float: left;
-    height: 25px;
-    font-size: 12px;
-
+.stats {
+    height: 50px;
+}
+.bidTable {
+    color: rgb(100, 170, 235);
+    text-align: left;
+    height: 20px;
 }
 #midPoint {
     width: 50%;
