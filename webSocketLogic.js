@@ -10,17 +10,17 @@ getSecondLevel = (bestPrice, side) => {
     // new array copy of order book with just prices to find index 
     // think about taking this out and putting in a function for reusability or  
     // directly in websocket message... 
-    let orderBookPriceOnly = side.filter(prices => {return prices.splice(1,1)}).join(',').split(',');
+    let orderBookPriceOnly = side.filter(prices => prices.splice(1,1)).join(',').split(',');
     // console.log(`current best price ------ ${bestPrice}`)
-    let secondLevelPrice = orderBookPriceOnly[orderBookPriceOnly.indexOf(bestPrice) + 1];
+    let secondLevelPrice = side[side.indexOf(bestPrice) + 1].toString();
     // console.log(secondLevelPrice)
     // if bad qoute, get the next closest array element from order book.
     if(secondLevelPrice >= (bestPrice *1.10) || bestPrice >= secondLevelPrice* 1.10){
-        secondLevelPrice = orderBookPriceOnly[orderBookPriceOnly.indexOf(bestPrice) + 2]
+        secondLevelPrice = side[orderBookPriceOnly.indexOf(bestPrice) + 2]
         // console.log(`if stale qoute = ${secondLevelPrice}`)
     }
         // console.log(convertedPrice(secondLevelPrice))
-    return convertedPrice(secondLevelPrice);
+    return secondLevelPrice;
 }
 
 initOrder = orderBook => {
@@ -43,17 +43,17 @@ l2UpdateCheck = (changesArray, currentData, orderBook) => {
     let compare = convertedPrice(changesArray[0][1]);
     let updatedQty = changesArray[0][2];
     switch(true){
-        case ((changesArray[0][0] === 'buy') && (compare === currentData.bidOnePrice)):
-            currentData.bidOneSize = updatedQty;
+        case ((side === 'buy') && (compare === currentData.bidOnePrice)):
+            return currentData.bidOneSize = updatedQty;
             break;
-        case ((changesArray[0][0] === 'buy') && (compare === currentData.bidTwoPrice)):
-            currentData.bidTwoSize = updatedQty;
+        case ((side === 'buy') && (compare === currentData.bidTwoPrice)):
+            return currentData.bidTwoSize = updatedQty;
             break;
-        case ((changesArray[0][0] === 'sell') && (compare === currentData.askOnePrice)):
-            currentData.askOneSize = updatedQty;
+        case ((side === 'sell') && (compare === currentData.askOnePrice)):
+            return currentData.askOneSize = updatedQty;
             break;
-        case ((changesArray[0][0] === 'sell') && (compare === currentData.askTwoPrice)):
-            currentData.askTwoSize = updatedQty;
+        case ((side === 'sell') && (compare === currentData.askTwoPrice)):
+            return currentData.askTwoSize = updatedQty;
             break;
         default:
             updateOrderBook(orderBook, compare, updatedQty, side);
@@ -62,27 +62,37 @@ l2UpdateCheck = (changesArray, currentData, orderBook) => {
 updateOrderBook = (orderBook, compare, updatedQty, side) => {
         //take in orderbook, is buy or sell, then update the array element with new size. 
         // let final = orderBook;
-        updatedQty = compare[2];
+        // updatedQty = compare[2];
         // let bids = orderBook.bids.map(prices => prices.splice(1,1)).join(',').split(',');
+        // console.log(compare, updatedQty)
+
         switch(side){
+            
             case 'sell':
             for(let i = 0; i < orderBook.asks.length; i++){
                 let check =orderBook.asks[i][0];
-                if(check == compare[1]){
-                    console.log(true, orderBook.asks[i][0]);
+                // console.log(check)
+                if(check == compare){
+                    // console.log(true, check);
                     orderBook.asks[i][1] = updatedQty;
                     return orderBook.asks[i][1];
                 }
-                else {
-                    console.log(false)
-                    return false
+            }
+            break;
+            case 'buy': 
+            for(let i = 0; i < orderBook.bids.length; i++){
+                let check = orderBook.bids[i][0];
+                if(check == compare){
+                    // console.log("bids", check);
+                    // console.log(orderBook)
+                    orderBook.bids[i][1] = updatedQty;
+                    // console.log(orderBook)
+                    return orderBook.bids[i][1];
                 }
             }
-
+            break;
         }
         
-        
-
         // console.log(compare[0])
         // let priceIndex = compare[1].toString();
         // switch(compare[0]){
