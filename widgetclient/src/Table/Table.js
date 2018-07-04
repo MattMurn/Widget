@@ -33,15 +33,6 @@ class Table extends Component {
         },1000)
     }
 
-<<<<<<< HEAD
-    // btnClick = event => {
-    //     let productSelect = {
-    //         productCode: event.target.value
-    //     };
-    //     this.setState({currentProduct: productSelect.productCode})
-    //     axios.post('/productSelect', productSelect);
-    // }
-=======
     dropdownSelect = event => {
         let productSelect = {
             productCode: this.state.productHeader[event]
@@ -49,7 +40,6 @@ class Table extends Component {
         this.setProduct(productSelect);
         this.setState({currentProduct: productSelect.productCode});
     }
->>>>>>> develop
 
     getProducts = () => {
         axios.get('/products').then(product => {
