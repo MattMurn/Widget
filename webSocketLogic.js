@@ -24,36 +24,36 @@ getSecondLevel = (bestPrice, side) => {
 }
 
 initOrder = orderBook => {
+    const { bids, asks } = orderBook;
     let currentData = {
-        bidOnePrice: convertedPrice(orderBook.bids[0][0]),
-        bidOneSize: convertedPrice(orderBook.bids[0][1]),
-        bidTwoPrice: convertedPrice(orderBook.bids[2][0]),
-        bidTwoSize: convertedPrice(orderBook.bids[2][1]),
-        askOnePrice: convertedPrice(orderBook.asks[0][0]),
-        askOneSize: convertedPrice(orderBook.asks[0][1]),
-        askTwoPrice: convertedPrice(orderBook.asks[2][0]),
-        askTwoSize: convertedPrice(orderBook.asks[2][1])
+        bidOnePrice: convertedPrice(bids[0][0]),
+        bidOneSize: convertedPrice(bids[0][1]),
+        bidTwoPrice: convertedPrice(bids[2][0]),
+        bidTwoSize: convertedPrice(bids[2][1]),
+        askOnePrice: convertedPrice(asks[0][0]),
+        askOneSize: convertedPrice(asks[0][1]),
+        askTwoPrice: convertedPrice(asks[2][0]),
+        askTwoSize: convertedPrice(asks[2][1])
     }
     return currentData;
 }
 
 l2UpdateCheck = (changesArray, currentData, orderBook) => {
     //get update price to the same format as orderbook snapshot.
-    let side = changesArray[0][0];
-    let compare = convertedPrice(changesArray[0][1]);
-    let updatedQty = changesArray[0][2];
+    const { bidOnePrice, bidTwoPrice, askOnePrice, askTwoPrice, midPoint, netChange } = currentData;
+    const { [0]: [side, compare, updatedQty]} = changesArray;
     switch(true){
-        case ((side === 'buy') && (compare === currentData.bidOnePrice)):
-            return currentData.bidOneSize = updatedQty;
+        case ((side === 'buy') && (compare === bidOnePrice)):
+            return bidOneSize = updatedQty;
             break;
-        case ((side === 'buy') && (compare === currentData.bidTwoPrice)):
-            return currentData.bidTwoSize = updatedQty;
+        case ((side === 'buy') && (compare === bidTwoPrice)):
+            return bidTwoSize = updatedQty;
             break;
-        case ((side === 'sell') && (compare === currentData.askOnePrice)):
-            return currentData.askOneSize = updatedQty;
+        case ((side === 'sell') && (compare === askOnePrice)):
+            return askOneSize = updatedQty;
             break;
-        case ((side === 'sell') && (compare === currentData.askTwoPrice)):
-            return currentData.askTwoSize = updatedQty;
+        case ((side === 'sell') && (compare === askTwoPrice)):
+            return askTwoSize = updatedQty;
             break;
         default:
             updateOrderBook(orderBook, compare, updatedQty, side);

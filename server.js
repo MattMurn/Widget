@@ -11,41 +11,43 @@ const gdaxData = require('./gdax');
 const wsLogic = require('./webSocketLogic');
 let key = "BTC-USD";
 
-
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'widgetclient/build')));
 
 gdaxData.webSocketConnect.on('message', feedData => {
-    switch(feedData.type){
+    // destructed feedData and currentData for readability
+    const { type, bids, asks, changes, best_bid, best_ask, price, open_24h } = feedData;
+    switch(type){
         case 'snapshot':
             orderBook = {
-                bids: feedData.bids.sort((a, b)=>  b-a),
-                asks: feedData.asks.sort((a, b)=>  a-b),
+                bids: bids.sort((a, b)=>  b-a),
+                asks: asks.sort((a, b)=>  a-b),
             }
             currentData = wsLogic.initOrder(orderBook);
         break;
         case 'l2update':
-            wsLogic.l2UpdateCheck(feedData.changes, currentData, orderBook)
+            wsLogic.l2UpdateCheck(changes, currentData, orderBook)
         break;
         case 'ticker':
-        console.log("Ticker")
-            currentData.bidOnePrice = wsLogic.convertedPrice(feedData.best_bid);
-            currentData.bidTwoPrice = wsLogic.getSecondLevel(currentData.bidOnePrice, orderBook.bids);
-            currentData.askOnePrice = wsLogic.convertedPrice(feedData.best_ask);
-            currentData.askTwoPrice = wsLogic.getSecondLevel(currentData.askOnePrice, orderBook.asks);
-            currentData.midPoint = (parseFloat(currentData.bidOnePrice) + parseFloat(currentData.askOnePrice))/2;
-           currentData.netChange = (((feedData.price - feedData.open_24h)/ feedData.open_24h)*100).toFixed(2);
+            let { bidOnePrice, bidTwoPrice, askOnePrice, askTwoPrice, midPoint, netChange } = currentData;
+            bidOnePrice = wsLogic.convertedPrice(best_bid);
+            bidTwoPrice = wsLogic.getSecondLevel(bidOnePrice, orderBook.bids);
+            askOnePrice = wsLogic.convertedPrice(best_ask);
+            askTwoPrice = wsLogic.getSecondLevel(askOnePrice, orderBook.asks);
+            midPoint = (parseFloat(bidOnePrice) + parseFloat(askOnePrice))/2;
+            netChange = (((price - open_24h)/ open_24h)*100).toFixed(2);
         }
     io.sockets.emit('getDataFeed', currentData)
-    
 });
+
 app.post('/productSelect', (req, res) => {
-        gdaxData.webSocketConnect.unsubscribe({ product_ids: [key], channels: ['level2', 'ticker'] });
-        console.log(req.body.productCode);
-        key = req.body.productCode;
-        gdaxData.webSocketConnect.subscribe({ product_ids: [key], channels: ['ticker', 'level2'] });
+    gdaxData.webSocketConnect.unsubscribe({ product_ids: [key], channels: ['level2', 'ticker'] });
+    console.log(req.body.productCode);
+    key = req.body.productCode;
+    gdaxData.webSocketConnect.subscribe({ product_ids: [key], channels: ['ticker', 'level2'] });
 });
+
 gdaxData.publicClient.getProducts().then(data => {
     productObj = data.map(i => {return i.id});
     return productObj;
@@ -54,11 +56,7 @@ gdaxData.publicClient.getProducts().then(data => {
 app.get('/products', (req, res) => {
     res.json(productObj);
 });
-app.post('/productSelect', (req, res) => {
-    // console.log(req.body.productCode);
-    key = req.body.productCode;
-    
-})
+
 console.log(key)
 app.get('*', (req, res) => {
     res.sendfile(path.join(__dirname + './widgetclient/build/index.html'));

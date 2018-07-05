@@ -26,11 +26,11 @@ class Table extends Component {
 
     componentWillMount = () => {
         this.getProducts();
-        let i = 0;
-        setInterval(() => {
-            i++;
-            console.log(i)
-        },1000)
+        // let i = 0;
+        // setInterval(() => {
+        //     i++;
+        //     console.log(i)
+        // },1000)
     }
 
     dropdownSelect = event => {
@@ -66,7 +66,7 @@ class Table extends Component {
             bidTwoSize: order.bidTwoSize,
             netChange: order.netChange,
             midPoint: order.midPoint
-        })
+        });
     }
  
     render = () => {
@@ -99,14 +99,9 @@ class Table extends Component {
             </div>
                 <table className="table table-dark">    
                     <thead>
-                        <tr className="currentProduct">
-                            {currentProduct}
-                        </tr>
+                        <tr className="currentProduct">{currentProduct}</tr>
                     </thead>
                     <tbody>
-                        {/* <tr>
-                            <th scope="col" className="sideHeader">Ask</th>
-                        </tr> */}
                         <tr className="askTable">
                             <th scope="col">Price</th>
                             <th scope="col">Size</th>
@@ -120,12 +115,9 @@ class Table extends Component {
                             <td>{askOneSize}</td>
                         </tr>
                         <tr className="stats">
-                        <th  id="netChange">Net Change: {netChange}%</th>
-                        <th  id="midPoint">MidPoint: {midPoint}</th>
+                        <th id="netChange">Net Change: {netChange}%</th>
+                        <th id="midPoint">MidPoint: {midPoint}</th>
                         </tr>
-                        {/* <tr>
-                            <th scope="col" className="sideHeader">Bid</th>
-                        </tr> */}
                         <tr className="bidTable">
                             <th scope="col">Price</th>
                             <th scope="col">Size</th>
@@ -144,5 +136,4 @@ class Table extends Component {
         )
     }
 }
-
 export default Table;
