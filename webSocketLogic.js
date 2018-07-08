@@ -1,9 +1,10 @@
 convertedPrice = price => {
     //prices come in different lengths from feed. 
     let decimal = price.indexOf('.') + 3 ;
-    return (price.toString().includes('.') === false ? 
-        price + '.00' : 
-        price.split('').splice(0, decimal).join(''));  
+    return (
+        price.toString().includes('.') === false ? 
+        price + '.00' : price.split('').splice(0, decimal).join('')
+    );  
 };
 
 getSecondLevel = (bestPrice, side) => {
