@@ -1,3 +1,5 @@
+gdaxData = require('./gdax');
+
 convertedPrice = price => {
     //prices come in different lengths from feed. 
     let decimal = price.indexOf('.') + 3 ;
@@ -5,7 +7,12 @@ convertedPrice = price => {
         price + '.00' : 
         price.split('').splice(0, decimal).join(''));  
 };
-
+midPoint = (bid, ask) => {
+    return (parseFloat(bid) + parseFloat(ask))/2
+}
+netChange = (price, openPrice) => {
+    return (((price - openPrice)/ openPrice)*100).toFixed(2);
+}
 getSecondLevel = (bestPrice, side) => {
     // new array copy of order book with just prices to find index 
     // think about taking this out and putting in a function for reusability or  
@@ -23,7 +30,7 @@ getSecondLevel = (bestPrice, side) => {
     return secondLevelPrice;
 }
 
-initOrder = orderBook => {
+initOrder = (orderBook, key) => {
     const { bids, asks } = orderBook;
     let currentData = {
         bidOnePrice: convertedPrice(bids[0][0]),
@@ -33,27 +40,32 @@ initOrder = orderBook => {
         askOnePrice: convertedPrice(asks[0][0]),
         askOneSize: convertedPrice(asks[0][1]),
         askTwoPrice: convertedPrice(asks[2][0]),
-        askTwoSize: convertedPrice(asks[2][1])
+        askTwoSize: convertedPrice(asks[2][1]),
     }
+    // opening price from a gDax rest endpoint for 
+    // gdaxData.publicClient.getProduct24HrStats(key).then(data => currentData.netChange =  netChange(convertedPrice(data.last), convertedPrice(data.open)))
+    currentData.midPoint = midPoint(currentData.bidOnePrice, currentData.askOnePrice)
+    // console.log(currentData.midPoint)
     return currentData;
 }
 
 l2UpdateCheck = (changesArray, currentData, orderBook) => {
     //get update price to the same format as orderbook snapshot.
-    const { bidOnePrice, bidTwoPrice, askOnePrice, askTwoPrice, midPoint, netChange } = currentData;
-    const { [0]: [side, compare, updatedQty]} = changesArray;
+    let side = changesArray[0][0];
+    let compare = convertedPrice(changesArray[0][1]);
+    let updatedQty = changesArray[0][2];
     switch(true){
-        case ((side === 'buy') && (compare === bidOnePrice)):
-            return bidOneSize = updatedQty;
+        case ((side === 'buy') && (compare === currentData.bidOnePrice)):
+            return currentData.bidOneSize = updatedQty;
             break;
-        case ((side === 'buy') && (compare === bidTwoPrice)):
-            return bidTwoSize = updatedQty;
+        case ((side === 'buy') && (compare === currentData.bidTwoPrice)):
+            return currentData.bidTwoSize = updatedQty;
             break;
-        case ((side === 'sell') && (compare === askOnePrice)):
-            return askOneSize = updatedQty;
+        case ((side === 'sell') && (compare === currentData.askOnePrice)):
+            return currentData.askOneSize = updatedQty;
             break;
-        case ((side === 'sell') && (compare === askTwoPrice)):
-            return askTwoSize = updatedQty;
+        case ((side === 'sell') && (compare === currentData.askTwoPrice)):
+            return currentData.askTwoSize = updatedQty;
             break;
         default:
             updateOrderBook(orderBook, compare, updatedQty, side);
@@ -123,5 +135,7 @@ module.exports = {
     getSecondLevel, 
     initOrder, 
     l2UpdateCheck,
-    updateOrderBook
+    updateOrderBook,
+    midPoint,
+    netChange
 }

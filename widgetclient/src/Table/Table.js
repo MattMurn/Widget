@@ -53,6 +53,14 @@ class Table extends Component {
             socket.on('getDataFeed', this.handleWsFeed)
         );
     }
+    getInitNetChange = () => {
+        //look at getting the initial net change and midpoint a different way. 
+        // using a rest api to get 24 hr data, so it needs to get to client
+        // in a different way than websocket.
+        axios.get('/initNetChange').then( data => {
+            console.log(data)
+        });
+    }
 
     handleWsFeed = order => {
         this.setState({
