@@ -10,8 +10,8 @@ const bodyParser = require('body-parser');
 const gdaxData = require('./gdax');
 const wsLogic = require('./webSocketLogic');
 let key = "BTC-USD";
-let open;
-let initPrice;
+let initNetChange;
+
 
 
 app.use(bodyParser.urlencoded({extended: false}));
@@ -28,8 +28,8 @@ gdaxData.webSocketConnect.on('message', feedData => {
                 asks: asks.sort((a, b)=>  a-b),
             }
             currentData = initOrder(orderBook, key);
-            console.log(netChange(initPrice, open))
-            currentData.netChange = netChange(initPrice, open);
+            // console.log(netChange(initPrice, open))
+            // currentData.netChange = netChange(initPrice, open);
             
         break;
         case 'l2update':
@@ -51,20 +51,16 @@ app.post('/productSelect', (req, res) => {
     gdaxData.webSocketConnect.unsubscribe({ product_ids: [key], channels: ['level2', 'ticker'] });
     // console.log(req.body.productCode);
     key = req.body.productCode;
-    gdaxData.publicClient.getProduct24HrStats(key)
-    .then( openPrice => {
-       open = openPrice.open;
-       initPrice = openPrice.last;
-   });
-   console.log(open);
-   console.log(initPrice)
     gdaxData.webSocketConnect.subscribe({ product_ids: [key], channels: ['ticker', 'level2'] });
 });
-//  gdaxData.publicClient.getProduct24HrStats(key)
-//  .then( openPrice => {
-//     open = openPrice.open;
-//     initPrice =openPrice.last;
-// });
+ gdaxData.publicClient.getProduct24HrStats(key)
+ .then( openPrice => {
+    initNetChange = netChange(openPrice.last, openPrice.open);
+    return initNetChange;
+});
+app.get('/initNetChange', (req, res) => {
+    res.json(initNetChange)
+})
 // console.log(tester)
 gdaxData.publicClient.getProducts().then(data => {
     productObj = data.map(i => {return i.id});

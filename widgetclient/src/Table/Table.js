@@ -26,19 +26,24 @@ class Table extends Component {
 
     componentWillMount = () => {
         this.getProducts();
+
+
         // let i = 0;
         // setInterval(() => {
         //     i++;
         //     console.log(i)
         // },1000)
     }
-
+    componentDid = () => {
+        
+    }
     dropdownSelect = event => {
         let productSelect = {
             productCode: this.state.productHeader[event]
         };
         this.setProduct(productSelect);
         this.setState({currentProduct: productSelect.productCode});
+        this.getInitNetChange();
     }
 
     getProducts = () => {
@@ -59,13 +64,14 @@ class Table extends Component {
         // in a different way than websocket.
         axios.get('/initNetChange').then( data => {
             console.log(data)
+            this.setState({netChange: data.data});
         });
     }
 
     handleWsFeed = order => {
         this.setState({
             askOnePrice: order.askOnePrice,
-            askOneSize: order.askOneSize,
+            askOneSize: order.askOneSize,   
             askTwoPrice: order.askTwoPrice,
             askTwoSize: order.askTwoSize,
             bidOnePrice: order.bidOnePrice,
