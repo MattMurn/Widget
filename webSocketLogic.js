@@ -23,15 +23,15 @@ getSecondLevel = (orderBook, orderBookPrices, bestPrice) => {
     let secondLevel = orderBook[secondLevelIndex];
     if(secondLevel[0] >= (bestPrice * 1.10) || bestPrice >= secondLevel[0] * 1.10){
         secondLevel = orderBook[secondLevelIndex +1];
-        return secondLevel
+        return secondLevel[0]
     }else {
-        return secondLevel;
+        return secondLevel[0];
     }
 };
 
-initOrder = (orderBook, key) => {
+initData = orderBook => {
     const { bids, asks } = orderBook;
-    let currentData = {
+    currentData = {
         bidOnePrice: convertedPrice(bids[0][0]),
         bidOneSize: convertedPrice(bids[0][1]),
         bidTwoPrice: convertedPrice(bids[2][0]),
@@ -98,7 +98,7 @@ updateOrderBook = (orderBook, compare, updatedQty, side) => {
 module.exports = {
     convertedPrice,
     getSecondLevel, 
-    initOrder, 
+    initData, 
     l2UpdateCheck,
     updateOrderBook,
     midPoint,

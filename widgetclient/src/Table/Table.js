@@ -18,25 +18,20 @@ class Table extends Component {
             bidPriceTwo: '--',
             bidSizeOne: '--',
             bidSizeTwo: '--',
-            currentProduct: '---',
+            currentProduct: 'BTC-USD',
             netChange: '',
             midPoint: ''
         };
-    }
+    };
 
     componentWillMount = () => {
         this.getProducts();
+    };
 
+    componentDidMount = () => {
+        socket.on('getDataFeed', this.handleWsFeed)        
+    };
 
-        // let i = 0;
-        // setInterval(() => {
-        //     i++;
-        //     console.log(i)
-        // },1000)
-    }
-    componentDid = () => {
-        
-    }
     dropdownSelect = event => {
         let productSelect = {
             productCode: this.state.productHeader[event]
@@ -44,29 +39,25 @@ class Table extends Component {
         this.setProduct(productSelect);
         this.setState({currentProduct: productSelect.productCode});
         this.getInitNetChange();
-    }
+    };
 
     getProducts = () => {
         axios.get('/products').then(product => {
             this.setState({productHeader: product.data});
         });
-    }
+    };
 
     setProduct = productSelect => {
         axios.post('/productSelect', productSelect)
         .then(
-            socket.on('getDataFeed', this.handleWsFeed)
+
         );
-    }
+    };
     getInitNetChange = () => {
-        //look at getting the initial net change and midpoint a different way. 
-        // using a rest api to get 24 hr data, so it needs to get to client
-        // in a different way than websocket.
         axios.get('/initNetChange').then( data => {
-            console.log(data)
             this.setState({netChange: data.data});
         });
-    }
+    };
 
     handleWsFeed = order => {
         this.setState({
@@ -84,7 +75,6 @@ class Table extends Component {
     }
  
     render = () => {
-        //add productHeader back in once multiple product sockets going.
         const { productHeader, askOnePrice, askTwoPrice, 
                 askOneSize,askTwoSize, bidOnePrice, 
                 bidTwoPrice, bidOneSize, bidTwoSize, currentProduct,
