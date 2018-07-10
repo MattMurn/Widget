@@ -1,12 +1,26 @@
+const gdaxData = require('./gdax');
+const wsLogic = require('./webSocketLogic')
 module.exports = app => {
-    let productArray;
-    app.get('/products', (req, res) => res.json(productArray));
-    let openPrice;
-    app.get('/openPrice', (req, res)=> res.json(openPrice))
-
+    app.post('/productSelect', (req, res) => {
+        reOpen(req.body.productCode);
+    });
+    //grab open and last trade for init net change.
+    app.get('/initNetChange', (req, res) => {
+        gdaxData.publicClient.getProduct24HrStats('BTC-USD')
+        .then( openPrice => {
+           initNetChange = netChange(openPrice.last, openPrice.open);
+           res.json(initNetChange)
+       }).catch(err => console.log(err))
+    })
+    
+    app.get('/products', (req, res) => {
+        gdaxData.publicClient.getProducts().then(data => {
+            let productObj = data.map(i => {return i.id});
+            res.json(productObj);
+        }).catch(err => console.log(err))
+    });
+    
     app.get('*', (req, res) => {
         res.sendfile(path.join(__dirname + './widgetclient/build/index.html'));
     });
-
-    app.post('/productSelect', (req, res) => key = req.body.productCode);
 }
