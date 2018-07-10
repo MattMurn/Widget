@@ -14,7 +14,7 @@ pricesOnly = (side) => {
 };
 
 midPoint = (bid, ask) => {
-    return (parseFloat(bid) + parseFloat(ask))/2;
+    return ((parseFloat(bid) + parseFloat(ask))/2).toFixed(4);
 };
 
 netChange = (price, openPrice) => {
