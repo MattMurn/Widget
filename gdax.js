@@ -1,6 +1,7 @@
-//Node library using publicClient and WebSocket Objs
+//Node library using publicClient and WebSocket objs
 const Gdax = require("gdax");
 const publicClient = new Gdax.PublicClient();
+//using public api 3rd parameter null
 const webSocketConnect = new Gdax.WebsocketClient( 'BTC-USD', 'wss://ws-feed.gdax.com', null, {
         "type": "subscribe",
         "channels": [
@@ -11,5 +12,5 @@ const webSocketConnect = new Gdax.WebsocketClient( 'BTC-USD', 'wss://ws-feed.gda
 
 module.exports = {
     webSocketConnect,
-    publicClient,
+    publicClient
 };

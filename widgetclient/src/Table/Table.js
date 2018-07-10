@@ -26,7 +26,6 @@ class Table extends Component {
 
     componentWillMount = () => {
         this.getProducts();
-        // this.setState({currentProduct: 'BTC-USD'})
     };
 
     componentDidMount = () => {

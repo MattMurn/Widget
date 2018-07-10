@@ -19,10 +19,9 @@ require('./controllerRoutes')(app);
 //destructured wsLogic to make function calls more readable.
 const { initData, convertedPrice, getSecondLevel,
         midPoint, netChange, pricesOnly, reOpen, marketCheck } = wsLogic;
-// gdax object method to recieve subscription data.
+
 gdaxData.webSocketConnect.on('message', feedData => {
     const { type, asks, bids, changes, best_ask, best_bid, open_24h, price } = feedData;
-    //check type and perform various function, and ultimately send client currentData obj.
     switch(type){
         case 'snapshot':
             orderBook = {
