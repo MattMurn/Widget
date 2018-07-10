@@ -60,10 +60,7 @@ initData = orderBook => {
         askTwoPrice: convertedPrice(asks[2][0]),
         askTwoSize: asks[2][1],
     }
-    // opening price from a gDax rest endpoint for 
-    // gdaxData.publicClient.getProduct24HrStats(key).then(data => currentData.netChange =  netChange(convertedPrice(data.last), convertedPrice(data.open)))
     currentData.midPoint = midPoint(currentData.bidOnePrice, currentData.askOnePrice)
-    // console.log(currentData.midPoint)
     return currentData;
 }
 
@@ -93,15 +90,14 @@ l2UpdateCheck = (changesArray, currentData, orderBook) => {
 
 updateOrderBook = (orderBook, compare, updatedQty, side) => {
         //take in orderbook, is buy or sell, then update the array element with new size. 
-        updateLoop = (side) => {
-            for(let i = 0; i < side.length; i++){
-                let check =convertedPrice(side[i][0]);
+        updateLoop = orderBookSide => {
+            for(let i = 0; i < orderBookSide.length; i++){
+                let check =convertedPrice(orderBookSide[i][0]);
                 // console.log(check, compare)
                 if(check == compare){
                     // console.log(true, check);
-                    side[i][1] = updatedQty;
-                    // console.log(updatedQty)
-                    return side[i][1];
+                    orderBookSide[i][1] = updatedQty;
+                    return orderBookSide[i][1];
                 }
             }
         }
