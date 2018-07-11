@@ -1,5 +1,6 @@
 const gdaxData = require('./gdax');
 const wsLogic = require('./webSocketLogic');
+const path = require('path')
 module.exports = app => {
     app.post('/productSelect', (req, res) => {
         reOpen(req.body.productCode);

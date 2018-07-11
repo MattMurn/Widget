@@ -29,7 +29,10 @@ class Table extends Component {
     };
 
     componentDidMount = () => {
-        socket.on('getDataFeed', this.handleWsFeed)        
+        socket.on('getDataFeed', this.handleWsFeed) 
+        // this.initialBook(); 
+        socket.on('initData', this.initialBook)
+
     };
 
     dropdownSelect = event => {
@@ -46,12 +49,20 @@ class Table extends Component {
             this.setState({productHeader: product.data});
         });
     };
-
+    initialBook = feedData => {
+        console.log("this is from initialBook", feedData)
+        
+    this.setState({
+        bidOnePrice: feedData.bids[0]
+    })
+    
+    }
     setProduct = productSelect => {
-        axios.post('/productSelect', productSelect)
-        .then(
+        socket.emit('updateProduct', productSelect);
+        // axios.post('/productSelect', productSelect)
+        // .then(
 
-        );
+        // );
     };
     getInitNetChange = () => {
         axios.get('/initNetChange').then( data => {
@@ -60,18 +71,37 @@ class Table extends Component {
     };
 
     handleWsFeed = order => {
+        // this.setState({
+        //     askOnePrice: order.askOnePrice,
+        //     askOneSize: order.askOneSize,   
+        //     askTwoPrice: order.askTwoPrice,
+        //     askTwoSize: order.askTwoSize,
+        //     bidOnePrice: order.bidOnePrice,
+        //     bidOneSize: order.bidOneSize,
+        //     bidTwoPrice: order.bidTwoPrice,
+        //     bidTwoSize: order.bidTwoSize,
+        //     netChange: order.netChange,
+        //     midPoint: order.midPoint
+        // });
+        if(order.type === 'snapshot'){
+        console.log(order)
+        }
+    
+    if(order.type === 'l2update') {
+        console.log(order.changes)
         this.setState({
-            askOnePrice: order.askOnePrice,
-            askOneSize: order.askOneSize,   
-            askTwoPrice: order.askTwoPrice,
-            askTwoSize: order.askTwoSize,
-            bidOnePrice: order.bidOnePrice,
-            bidOneSize: order.bidOneSize,
-            bidTwoPrice: order.bidTwoPrice,
-            bidTwoSize: order.bidTwoSize,
-            netChange: order.netChange,
-            midPoint: order.midPoint
+             askOnePrice: order.changes[0][1],
+        //     askOneSize: order.askOneSize,   
+        //     askTwoPrice: order.askTwoPrice,
+        //     askTwoSize: order.askTwoSize,
+        //     bidOnePrice: order.bidOnePrice,
+        //     bidOneSize: order.bidOneSize,
+        //     bidTwoPrice: order.bidTwoPrice,
+        //     bidTwoSize: order.bidTwoSize,
+        //     netChange: order.netChange,
+        //     midPoint: order.midPoint
         });
+    }
     }
  
     render = () => {
