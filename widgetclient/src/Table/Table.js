@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import './Table.css';
-import axios from 'axios';
 import { DropdownButton, MenuItem, ButtonToolbar } from 'react-bootstrap';
 import io from 'socket.io-client';
 const socket = io.connect();
@@ -25,14 +24,14 @@ class Table extends Component {
     };
 
     componentWillMount = () => {
-        this.getProducts();
+        // this.getProducts();
+        socket.on('products', this.getProducts)
+        socket.on('initBook', this.initialBook)
     };
 
     componentDidMount = () => {
-        socket.on('getDataFeed', this.handleWsFeed) 
-        // this.initialBook(); 
-        socket.on('initData', this.initialBook)
-
+        socket.on('netChange', this.getInitNetChange)
+        // socket.on('l2update', this.handleWsFeed) 
     };
 
     dropdownSelect = event => {
@@ -44,64 +43,45 @@ class Table extends Component {
         this.getInitNetChange();
     };
 
-    getProducts = () => {
-        axios.get('/products').then(product => {
-            this.setState({productHeader: product.data});
+    getProducts = (data) => {
+        this.setState({productHeader: data});
+    };
+
+    initialBook = feedData => {
+        console.log("this is from initialBook", feedData.bids[0])
+        this.setState({
+            bidOnePrice: feedData.bids[0][0],
+            bidOneSize: feedData.bids[0][1],
+            bidTwoPrice: feedData.bids[2][0],
+            bidTwoSize: feedData.bids[2][1],
+            askOnePrice: feedData.asks[0][0],
+            askOneSize: feedData.asks[0][1],
+            askTwoPrice: feedData.asks[2][0],
+            askTwoSize: feedData.asks[2][1],
         });
     };
-    initialBook = feedData => {
-        console.log("this is from initialBook", feedData)
-        
-    this.setState({
-        bidOnePrice: feedData.bids[0]
-    })
-    
-    }
+
     setProduct = productSelect => {
         socket.emit('updateProduct', productSelect);
-        // axios.post('/productSelect', productSelect)
-        // .then(
-
-        // );
     };
-    getInitNetChange = () => {
-        axios.get('/initNetChange').then( data => {
-            this.setState({netChange: data.data});
-        });
+
+    getInitNetChange = data => {
+        this.setState({netChange: data});
     };
 
     handleWsFeed = order => {
-        // this.setState({
-        //     askOnePrice: order.askOnePrice,
-        //     askOneSize: order.askOneSize,   
-        //     askTwoPrice: order.askTwoPrice,
-        //     askTwoSize: order.askTwoSize,
-        //     bidOnePrice: order.bidOnePrice,
-        //     bidOneSize: order.bidOneSize,
-        //     bidTwoPrice: order.bidTwoPrice,
-        //     bidTwoSize: order.bidTwoSize,
-        //     netChange: order.netChange,
-        //     midPoint: order.midPoint
-        // });
-        if(order.type === 'snapshot'){
-        console.log(order)
-        }
-    
-    if(order.type === 'l2update') {
-        console.log(order.changes)
         this.setState({
-             askOnePrice: order.changes[0][1],
-        //     askOneSize: order.askOneSize,   
-        //     askTwoPrice: order.askTwoPrice,
-        //     askTwoSize: order.askTwoSize,
-        //     bidOnePrice: order.bidOnePrice,
-        //     bidOneSize: order.bidOneSize,
-        //     bidTwoPrice: order.bidTwoPrice,
-        //     bidTwoSize: order.bidTwoSize,
-        //     netChange: order.netChange,
-        //     midPoint: order.midPoint
+            askOnePrice: order.askOnePrice,
+            askOneSize: order.askOneSize,   
+            askTwoPrice: order.askTwoPrice,
+            askTwoSize: order.askTwoSize,
+            bidOnePrice: order.bidOnePrice,
+            bidOneSize: order.bidOneSize,
+            bidTwoPrice: order.bidTwoPrice,
+            bidTwoSize: order.bidTwoSize,
+            netChange: order.netChange,
+            midPoint: order.midPoint
         });
-    }
     }
  
     render = () => {

@@ -21,33 +21,48 @@ require('./controllerRoutes')(app);
 const { initData, convertedPrice, getSecondLevel,
         midPoint, netChange, pricesOnly, reOpen, marketCheck } = wsLogic;
 
-
 io.on('connection', socket => {
-    socket.on('initProduct', data => {
-        
+
+    gdaxData.publicClient.getProducts()
+    .then(data => {
+        productObj = data.map(i => {return i.id});
+        socket.emit('products', productObj)
     })
     socket.on('updateProduct', data => {
         console.log(data)
         socketTestKey = data.productCode;
     })
+    gdaxData.publicClient.getProduct24HrStats('BTC-USD')
+        .then( openPrice => {
+           initNetChange = netChange(openPrice.last, openPrice.open);
+           socket.emit('netChange', initNetChange);
+       })
     // socket.on('getDataFeed', socket => {
-        gdaxData.webSocketConnect.on('message', feedData => {
-            
-         
-            const { type, asks, bids, changes, best_ask, best_bid, open_24h, price } = feedData;
-            switch(type){
-                case 'snapshot':
-                console.log(feedData.type)
-                socket.emit('initData', feedData)   
-                break;
-                case 'l2update':
-                // socket.emit('getDataFeed', "l2")
-        
-                break;
-                case 'ticker':
-                    
-                }
-        });
+    gdaxData.webSocketConnect.on('message', feedData => {
+        const { type, asks, bids, changes, best_ask, best_bid, open_24h, price } = feedData;
+        switch(type){
+            case 'snapshot':
+                orderBook = {
+                    bids: bids,
+                    asks: asks,
+                };
+                socket.emit('initBook', orderBook)         
+            break;
+            case 'l2update':
+                // take changes array, compare prices and update qty.
+                // l2UpdateCheck(changes, currentData, orderBook);
+                socket.emit('l2update', feedData)
+            break;
+            case 'ticker':
+                    // if market moves through bid or ask, recenter currentData object
+                    // marketCheck(orderBookPrices, best_bid, best_ask);
+                    // currentData.bidOnePrice = convertedPrice(best_bid);
+                    // currentData.bidTwoPrice = getSecondLevel(orderBook.bids, orderBookPrices.bids, best_bid)
+                    // currentData.askOnePrice = convertedPrice(best_ask);
+                    // currentData.askTwoPrice = getSecondLevel(orderBook.asks, orderBookPrices.asks, best_ask)
+                    // currentData.netChange = netChange(price, open_24h);
+            }
+    });
     // })
 })
 
