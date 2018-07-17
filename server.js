@@ -15,8 +15,6 @@ let socketTestKey = 'USD-BTC';
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'widgetclient/build')));
-// server-side routes
-require('./controllerRoutes')(app);
 //destructured wsLogic to make function calls more readable.
 const { initData, convertedPrice, getSecondLevel,
         midPoint, netChange, pricesOnly, reOpen, marketCheck } = wsLogic;
@@ -50,8 +48,8 @@ io.on('connection', socket => {
             break;
             case 'l2update':
                 // take changes array, compare prices and update qty.
-                // l2UpdateCheck(changes, currentData, orderBook);
-                socket.emit('l2update', feedData)
+                
+                // socket.emit('l2update', feedData)
             break;
             case 'ticker':
                     // if market moves through bid or ask, recenter currentData object

@@ -48,21 +48,6 @@ getSecondLevel = (orderBook, orderBookPrices, bestPrice) => {
     }
 };
 
-initData = orderBook => {
-    const { bids, asks } = orderBook;
-    currentData = {
-        bidOnePrice: convertedPrice(bids[0][0]),
-        bidOneSize: bids[0][1],
-        bidTwoPrice: convertedPrice(bids[2][0]),
-        bidTwoSize: bids[2][1],
-        askOnePrice: convertedPrice(asks[0][0]),
-        askOneSize: asks[0][1],
-        askTwoPrice: convertedPrice(asks[2][0]),
-        askTwoSize: asks[2][1],
-    }
-    currentData.midPoint = midPoint(currentData.bidOnePrice, currentData.askOnePrice)
-    return currentData;
-}
 
 l2UpdateCheck = (changesArray, currentData, orderBook) => {
     //get update price to the same format as orderbook snapshot.
@@ -113,8 +98,7 @@ updateOrderBook = (orderBook, compare, updatedQty, side) => {
 
 module.exports = {
     convertedPrice,
-    getSecondLevel, 
-    initData, 
+    getSecondLevel,
     l2UpdateCheck,
     updateOrderBook,
     midPoint,

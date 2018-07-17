@@ -25,8 +25,9 @@ class Table extends Component {
 
     componentWillMount = () => {
         // this.getProducts();
-        socket.on('products', this.getProducts)
+
         socket.on('initBook', this.initialBook)
+        socket.on('products', this.getProducts)
     };
 
     componentDidMount = () => {
