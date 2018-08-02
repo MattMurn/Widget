@@ -19,7 +19,8 @@ class Table extends Component {
             bidSizeTwo: '--',
             currentProduct: 'BTC-USD',
             netChange: '',
-            midPoint: ''
+            midPoint: '',
+            orderBook: []
         };
     };
 
@@ -32,7 +33,8 @@ class Table extends Component {
 
     componentDidMount = () => {
         socket.on('netChange', this.getInitNetChange)
-        // socket.on('l2update', this.handleWsFeed) 
+        socket.on('l2update', this.handleWsFeed) 
+        socket.on('ticker', data => console.log(data));
     };
 
     dropdownSelect = event => {
@@ -47,18 +49,25 @@ class Table extends Component {
     getProducts = (data) => {
         this.setState({productHeader: data});
     };
-
+    convertedPrice = price => {
+        //prices come in different lengths from l2update / ticker
+        let decimal = price.indexOf('.') + 3;
+        return (price.includes('.') === false ? 
+            price + '.00' : 
+            price.split('').splice(0, decimal).join(''));  
+    };
     initialBook = feedData => {
-        console.log("this is from initialBook", feedData.bids[0])
+        // console.log("this is from initialBook", feedData.bids[0])
         this.setState({
-            bidOnePrice: feedData.bids[0][0],
+            bidOnePrice: this.convertedPrice(feedData.bids[0][0]),
             bidOneSize: feedData.bids[0][1],
-            bidTwoPrice: feedData.bids[2][0],
+            bidTwoPrice: this.convertedPrice(feedData.bids[2][0]),
             bidTwoSize: feedData.bids[2][1],
-            askOnePrice: feedData.asks[0][0],
+            askOnePrice: this.convertedPrice(feedData.asks[0][0]),
             askOneSize: feedData.asks[0][1],
-            askTwoPrice: feedData.asks[2][0],
+            askTwoPrice: this.convertedPrice(feedData.asks[2][0]),
             askTwoSize: feedData.asks[2][1],
+            orderBook: feedData
         });
     };
 
@@ -70,19 +79,48 @@ class Table extends Component {
         this.setState({netChange: data});
     };
 
-    handleWsFeed = order => {
-        this.setState({
-            askOnePrice: order.askOnePrice,
-            askOneSize: order.askOneSize,   
-            askTwoPrice: order.askTwoPrice,
-            askTwoSize: order.askTwoSize,
-            bidOnePrice: order.bidOnePrice,
-            bidOneSize: order.bidOneSize,
-            bidTwoPrice: order.bidTwoPrice,
-            bidTwoSize: order.bidTwoSize,
-            netChange: order.netChange,
-            midPoint: order.midPoint
-        });
+    handleWsFeed =currentData => {
+        const { askOnePrice, askTwoPrice, bidOnePrice, 
+            bidTwoPrice, askOneSize, askTwoSize,
+            bidOneSize, bidTwoSize } = this.state;
+        // this.setState({
+        //     askOnePrice: order.askOnePrice,
+        //     askOneSize: order.askOneSize,   
+        //     askTwoPrice: order.askTwoPrice,
+        //     askTwoSize: order.askTwoSize,
+        //     bidOnePrice: order.bidOnePrice,
+        //     bidOneSize: order.bidOneSize,
+        //     bidTwoPrice: order.bidTwoPrice,
+        //     bidTwoSize: order.bidTwoSize,
+        //     netChange: order.netChange,
+        //     midPoint: order.midPoint
+        // });
+            //get update price to the same format as orderbook snapshot.
+            
+            // let side = currentData.changes[0][0];
+
+            // let updatedQty = currentData.changes[0][2];
+            // console.log(compare, this.state.bidOnePrice)
+            const { [0]: [side, compare, updatedQty ]} = currentData.changes;
+            // compare = this.convertedPrice(compare);
+            // console.log(updatedQty, this.convertedPrice(compare))
+
+            switch(true){
+                case ((side === 'buy') && (this.convertedPrice(compare) === this.state.bidOnePrice)):
+                     this.setState({bidOneSize: updatedQty});
+                    break;
+                case ((side === 'buy') && (this.convertedPrice(compare) === this.state.bidTwoPrice)):
+                     this.setState({bidTwoSize: updatedQty});
+                    break;
+                case ((side === 'sell') && (this.convertedPrice(compare) === this.state.askOnePrice)):
+                     this.setState({askOneSize: updatedQty});
+                    break;
+                case ((side === 'sell') && (this.convertedPrice(compare) === this.state.askTwoPrice)):
+                     this.setState({askTwoSize: updatedQty});
+                    break;
+                default:
+                    // updateOrderBook(orderBook, compare, updatedQty, side);
+            }
     }
  
     render = () => {

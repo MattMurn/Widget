@@ -20,7 +20,6 @@ const { initData, convertedPrice, getSecondLevel,
         midPoint, netChange, pricesOnly, reOpen, marketCheck } = wsLogic;
 
 io.on('connection', socket => {
-
     gdaxData.publicClient.getProducts()
     .then(data => {
         productObj = data.map(i => {return i.id});
@@ -37,6 +36,8 @@ io.on('connection', socket => {
        })
     // socket.on('getDataFeed', socket => {
     gdaxData.webSocketConnect.on('message', feedData => {
+        gdaxData.webSocketConnect.productIDs = socketTestKey;
+        
         const { type, asks, bids, changes, best_ask, best_bid, open_24h, price } = feedData;
         switch(type){
             case 'snapshot':
@@ -44,27 +45,16 @@ io.on('connection', socket => {
                     bids: bids,
                     asks: asks,
                 };
-                socket.emit('initBook', orderBook)         
+                socket.emit('initBook', orderBook);        
             break;
             case 'l2update':
-                // take changes array, compare prices and update qty.
-                
-                // socket.emit('l2update', feedData)
+                socket.emit('l2update', feedData);
             break;
             case 'ticker':
-                    // if market moves through bid or ask, recenter currentData object
-                    // marketCheck(orderBookPrices, best_bid, best_ask);
-                    // currentData.bidOnePrice = convertedPrice(best_bid);
-                    // currentData.bidTwoPrice = getSecondLevel(orderBook.bids, orderBookPrices.bids, best_bid)
-                    // currentData.askOnePrice = convertedPrice(best_ask);
-                    // currentData.askTwoPrice = getSecondLevel(orderBook.asks, orderBookPrices.asks, best_ask)
-                    // currentData.netChange = netChange(price, open_24h);
+                socket.emit('ticker', feedData);
             }
     });
-    // })
 })
-
-
 
 module.exports = {
     getSecondLevel,

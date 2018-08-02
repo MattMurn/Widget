@@ -28,10 +28,13 @@ reOpen = req => {
     return key;
 };
 
-marketCheck = (orderBookPrices, best_bid, best_ask) => {
-    let bestBid = orderBookPrices.bids.indexOf(best_bid);
-    let bestAsk = orderBookPrices.asks.indexOf(best_ask);
+marketCheck = (orderBook, best_bid, best_ask) => {
+    let  orderBookBidPrices = orderBook.bids.filter(el => el.splice(1,1));
+    let orderBookAskPrices = orderBook.asks.filter(el => el.splice(1,1));
+    let bestBid = orderBookBidPrices.indexOf(best_bid);
+    let bestAsk = orderBookAskPrices.indexOf(best_ask);
     // console.log(bestBid, best_bid)
+    console.log(bestAsk, best_ask)
     if(bestBid < 0 || bestAsk < 0){
         return reOpen(key);
     }
@@ -49,29 +52,29 @@ getSecondLevel = (orderBook, orderBookPrices, bestPrice) => {
 };
 
 
-l2UpdateCheck = (changesArray, currentData, orderBook) => {
-    //get update price to the same format as orderbook snapshot.
-    let side = changesArray[0][0];
-    let compare = convertedPrice(changesArray[0][1]);
-    let updatedQty = changesArray[0][2];
-    // const { [0]: [side, compare, updatedQty]} = changesArray;
-    switch(true){
-        case ((side === 'buy') && (compare === currentData.bidOnePrice)):
-            return currentData.bidOneSize = updatedQty;
-            break;
-        case ((side === 'buy') && (compare === currentData.bidTwoPrice)):
-            return currentData.bidTwoSize = updatedQty;
-            break;
-        case ((side === 'sell') && (compare === currentData.askOnePrice)):
-            return currentData.askOneSize = updatedQty;
-            break;
-        case ((side === 'sell') && (compare === currentData.askTwoPrice)):
-            return currentData.askTwoSize = updatedQty;
-            break;
-        default:
-            updateOrderBook(orderBook, compare, updatedQty, side);
-    }
-}
+// l2UpdateCheck = (changesArray, currentData, orderBook) => {
+//     //get update price to the same format as orderbook snapshot.
+//     let side = changesArray[0][0];
+//     let compare = convertedPrice(changesArray[0][1]);
+//     let updatedQty = changesArray[0][2];
+//     // const { [0]: [side, compare, updatedQty]} = changesArray;
+//     switch(true){
+//         case ((side === 'buy') && (compare === currentData.bidOnePrice)):
+//             return currentData.bidOneSize = updatedQty;
+//             break;
+//         case ((side === 'buy') && (compare === currentData.bidTwoPrice)):
+//             return currentData.bidTwoSize = updatedQty;
+//             break;
+//         case ((side === 'sell') && (compare === currentData.askOnePrice)):
+//             return currentData.askOneSize = updatedQty;
+//             break;
+//         case ((side === 'sell') && (compare === currentData.askTwoPrice)):
+//             return currentData.askTwoSize = updatedQty;
+//             break;
+//         default:
+//             updateOrderBook(orderBook, compare, updatedQty, side);
+//     }
+// }
 
 updateOrderBook = (orderBook, compare, updatedQty, side) => {
         //take in orderbook, is buy or sell, then update the array element with new size. 
@@ -99,7 +102,7 @@ updateOrderBook = (orderBook, compare, updatedQty, side) => {
 module.exports = {
     convertedPrice,
     getSecondLevel,
-    l2UpdateCheck,
+    // l2UpdateCheck,
     updateOrderBook,
     midPoint,
     netChange,
